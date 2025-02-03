@@ -10,3 +10,4 @@ examples/
 **/.zen
 **/.zenml
 **/.DS_Store
+**/*.gguf
