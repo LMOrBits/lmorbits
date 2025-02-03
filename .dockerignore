@@ -1,0 +1,12 @@
+examples/
+.zenml/
+.zen/
+.venv/
+.vscode/
+.DS_Store
+**/.env
+**/.venv
+**/.vscode
+**/.zen
+**/.zenml
+**/.DS_Store

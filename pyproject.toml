@@ -1,0 +1,58 @@
+[project]
+name = "slmops"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "omegaconf>=2.3.0",
+  "skypilot==0.7",
+  "uv>=0.5.18",
+  "skypilot[gcp,google,kubernetes]==0.7",
+  "zenml[connectors-gcp]==0.71.0",
+]
+
+[tool.uv.sources]
+ml = { workspace = true }
+application = { workspace = true }
+data = { workspace = true }
+orchestration = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration"]
+
+
+[dependency-groups]
+not-ml-dev-package = [
+    "application",
+    "data",
+    "orchestration",
+    "ipykernel>=6.29.5",
+]
+data-package = [
+    "data",
+]
+ml-package = [
+    "ml",
+]
+app-package = [
+    "application",
+]
+all-dev = [
+    "application",
+    "data",
+    "ipykernel>=6.29.5",
+    "ml",
+    "orchestration",
+]
+all-package = [
+    "application",
+    "data",
+    "ml",
+    "orchestration",
+]
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

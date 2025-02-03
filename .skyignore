@@ -1,0 +1,20 @@
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+**/.env
+**/.venv/
+**/.vscode
+
+**/.DS_Store
+
+.zenml/
+.zen/
+.vscode/
+
+**/.zen
+**/.zenml

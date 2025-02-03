@@ -1,0 +1,261 @@
+# .PHONY: integrate-kubernetes
+integrate-kubernetes:
+	uv run zenml integration install --uv kubernetes
+
+all-integrations:
+	uv run zenml integration install --uv kubernetes -y
+	uv run zenml integration install --uv gcp -y
+	uv run zenml integration install --uv mlflow -y
+	uv run zenml integration install --uv skypilot_gcp -y
+	uv run zenml integration install --uv skypilot_kubernetes -y
+
+all: 
+	create-gcs-connector ; 
+	create-gcs-artifact-store ; 
+	create-gcs-container-registry ; 
+	create-k3d-orchestrator ; 
+	create-local-image-builder ; 
+	add-mlflow-tracking ; 
+	add-data-validation ; 
+	setup-stack-gcs-mlflow-kubernetes
+
+stack-default:
+	uv run stack set default
+
+create-gcs-connector-sky:
+	uv run zenml service-connector register google_cloud_connector_sky_service \
+		--type gcp \
+		--auto-configure \
+		--auth-method=service-account \
+		--project_id=slmops-dev \
+
+create-gcs-connector:
+	uv run zenml integration install gcp -y --uv
+	uv run zenml service-connector register google_cloud_connector --type gcp \
+		--auto-configure \
+		--project_id=slmops-dev 
+
+create-gcs-artifact-store:
+	uv run zenml artifact-store register gcs_store -f gcp \
+		--path=gs://slmops-dev-ml-artifacts \
+		--authentication_secret=gcp_secret
+	uv run zenml artifact-store connect gcs_store --connector google_cloud_connector
+
+create-gcs-container-registry:
+	uv run zenml container-registry register gcs-container-registry \
+		--flavor=gcp \
+		--uri=europe-north1-docker.pkg.dev/slmops-dev/images-dev
+	uv run zenml container-registry connect gcs-container-registry --connector google_cloud_connector
+
+
+create-k3d-orchestrator:
+	uv run zenml orchestrator register k3d-orchestrator \
+		--flavor=kubernetes \
+		--kubernetes_context=k3d-slmops-cluster
+	kubectl create namespace zenml
+
+create-k8s-orchestrator:
+	uv run zenml orchestrator register k8s\
+		--flavor=kubernetes \
+		--kubernetes_context=$$(kubectl config current-context)
+
+
+create-local-image-builder:
+	uv run zenml image-builder register docker-local --flavor=local
+	kubectl create secret generic registry-secret \
+		--from-file=.dockerconfigjson=$$HOME/.docker/config.json \
+		--type=kubernetes.io/dockerconfigjson
+
+add-mlflow-tracking-local:
+	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
+		--tracking_username=admin --tracking_password=slmops \
+		--tracking_uri=http://mlflow-server-tracking.default.svc.cluster.local:5000
+	uv run zenml model-registry register -f mlflow gcs-mlflow
+
+add-mlflow-tracking:
+	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
+		--tracking_username=slmops --tracking_password="j6rXZAkyS}MOeYha" \
+		--tracking_uri=https://mlflow.lmorbits.com/
+	uv run zenml model-registry register -f mlflow gcs-mlflow
+
+add-data-validation:
+	uv run zenml integration install deepchecks -y --uv
+	uv run zenml data-validator register deepchecks_data_validator --flavor=deepchecks
+
+setup-stack-gcs-mlflow-kubernetes:
+	uv run zenml stack register test-stack \
+	--artifact-store gcs_store \
+	--orchestrator k3d-orchestrator \
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set test-stack
+
+add-starter-deps:
+	uv run zenml integration install sklearn pandas -y --uv
+
+k3d-enable-gcs-container-registry:
+	kubectl apply -f src/orchestration/zenml/scripts/access.yaml
+	kubectl patch serviceaccount default -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount zenml-service-account -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount default  \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+
+	kubectl create secret docker-registry artifact-registry-secret \
+		--docker-server=https://europe-north1-docker.pkg.dev \
+    --docker-username=_json_key \
+    --docker-password="$$(cat ../cloud/terraform/environments/dev/keys/super-admin-key.json)" \
+    --docker-email=super-admin-dev@slmops-dev.iam.gserviceaccount.com
+		--namespace zenml
+
+
+
+k8s-enable-gcs-container-registry:
+	kubectl apply -f zenml_starter/access.yaml
+	kubectl patch serviceaccount default -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount zenml-service-account -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount default  \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+
+	kubectl create secret docker-registry artifact-registry-secret \
+		--docker-server=https://europe-north1-docker.pkg.dev \
+    --docker-username=_json_key \
+    --docker-password="$$(cat ../cloud/terraform/environments/dev/keys/super-admin-key.json)" \
+    --docker-email=super-admin-dev@slmops-dev.iam.gserviceaccount.com
+		--namespace zenml
+
+
+
+
+add-sky-kube:
+	uv run zenml zenml integration install skypilot_kubernete  -y --uv
+	uv run zenml orchestrator register sky-kube --flavor sky_kubernetes
+
+add-sky-gcs:
+	uv add "zenml[connectors-gcp]"
+	uv run zenml integration install gcp skypilot_gcp --uv -y
+	uv run zenml orchestrator register sky-gcs --flavor vm_gcp
+	uv run zenml orchestrator connect sky-gcs --connector google_cloud_connector_sky_service
+	uv run zenml service-connector update google_cloud_connector_sky_service --generate_temporary_tokens=False	
+setup-stack-gcs-mlflow-sky-kube:
+	uv run zenml stack register stack-sky-kube \
+	--artifact-store gcs_store \
+	--orchestrator sky-kube \
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-sky-kube
+
+setup-stack-gcs-mlflow-sky-gcs:
+	uv run zenml stack register stack-sky-gcs \
+	--artifact-store gcs_store \
+	--orchestrator sky-gcs \
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-sky-gcs
+
+setup-stack-gcs-mlflow-k8s-gcs:
+	uv run zenml stack register stack-k8s-gcs \
+	--artifact-store gcs_store \
+	--orchestrator k8s\
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-k8s-gcs
+
+
+
+setup-stack-gcs-mlflow-k8s-gcs:
+	uv run zenml stack register stack-k8s-gcs \
+	--artifact-store gcs_store \
+	--orchestrator k8s\
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-k8s-gcs
+
+setup-stack-gcs-mlflow-k8s-gcs:
+	uv run zenml stack register stack-k8s-gcs \
+	--artifact-store gcs_store \
+	--orchestrator k8s\
+	--container_registry gcs-container-registry \
+	--image_builder docker-local \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-k8s-gcs
+
+
+setup-stack-local:
+	uv run zenml stack register stack-local \
+	--orchestrator default \
+	--artifact-store gcs_store \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--set
+	uv run zenml stack set stack-local
+
+
+# Define variables
+PROJECT_ID := slmops-dev
+REGION := europe-north1
+REPO_NAME := images-dev
+GP ?= "none"
+TAG := latest
+# BUILDPLATFORM := linux/amd64,linux/arm64
+IMAGE_NAME := zenml-image-$(GP)
+FULL_IMAGE_NAME := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO_NAME)/$(IMAGE_NAME):$(TAG)
+build-tag-push: build tag push
+
+# Build the Docker image
+build:
+ifeq ($(GP), ml-package)
+	docker build -f ml.Dockerfile  -t $(IMAGE_NAME):$(TAG) .
+else ifeq ($(GP), orchestration)
+	docker build -f orchestration.Dockerfile  -t $(IMAGE_NAME):$(TAG) .
+else ifeq ($(GP), data-package)
+	docker buildx build --platform $(BUILDPLATFORM) -f data.Dockerfile  -t $(IMAGE_NAME):$(TAG) .
+else
+	docker build --build-arg SELECTED_GROUP=$(GP) -t $(IMAGE_NAME):$(TAG) .
+endif
+
+# Tag the image for Artifact Registry
+tag:
+	docker tag $(IMAGE_NAME) $(FULL_IMAGE_NAME)
+
+# Authenticate Docker with Google Artifact Registry
+auth:
+	gcloud auth configure-docker $(REGION)-docker.pkg.dev
+
+# Push the image to Google Artifact Registry
+push: auth tag
+	docker push $(FULL_IMAGE_NAME)
+
+# Clean up local images (optional)
+clean:
+	docker rmi $(IMAGE_NAME):$(TAG) || true
+	docker rmi $(FULL_IMAGE_NAME) || true
+
+exec:
+	docker run -it $(IMAGE_NAME) /bin/bash
+
+sky-up:
+	uv run sky launch  skypilot.yaml --name gpu-l4
+
+sky-down:
+	uv run sky down gpu-l4
