@@ -1,0 +1,25 @@
+[project]
+name = "data"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11,<=3.13"
+dependencies = [
+    "lakefs-spec>=0.10.0",
+    "lakefs>=0.8.0",
+    "datasets>=3.2.0",
+    "loguru>=0.7.3",
+    "nltk>=3.9.1",
+    "symspellpy>=6.7.8",
+    "dask[complete]>=2024.8.0",
+    "zenml==0.71.0"
+    
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/data"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
