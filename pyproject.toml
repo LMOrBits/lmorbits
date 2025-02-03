@@ -19,7 +19,7 @@ data = { workspace = true }
 orchestration = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration"]
+members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration", ]
 
 
 [dependency-groups]
