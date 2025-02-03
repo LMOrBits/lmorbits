@@ -1,0 +1,28 @@
+[project]
+name = "ml"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-cloud-storage>=2.14.0",
+    "mlflow>=2.20.1",
+    "omegaconf>=2.3.0",
+    "setuptools>=75.8.0",
+    # "unsloth[cu121-torch240]",
+]
+
+[project.scripts]
+ml = "ml:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+unsloth = { git = "https://github.com/unslothai/unsloth.git" }
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
