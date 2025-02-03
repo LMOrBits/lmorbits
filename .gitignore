@@ -27,3 +27,4 @@ wheels/
 # env files and json
 **/.env
 **/*.json
+**/*.ini
