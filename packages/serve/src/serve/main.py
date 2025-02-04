@@ -1,97 +1,109 @@
-import mlflow
+import click
+import subprocess
 from pathlib import Path
-from mlflow.tracking import MlflowClient
-from google.cloud import storage
-import config
+from serve.mlflow.main import download_model_artifact_from_gcs
+from serve.mlflow.check import model_needs_update
+from serve.mlflow.model_config import ModelConfig
+import serve.mlflow.config as config
+import mlflow
 import os
-from tqdm import tqdm
 
-class TqdmWriter:
-  def __init__(self, file_obj, total):
-      self.file_obj = file_obj
-      self.pbar = tqdm(total=total, unit="B", unit_scale=True, desc="Downloading the model")
-  def write(self, data):
-      self.file_obj.write(data)
-      self.pbar.update(len(data))
-  def flush(self):
-      self.file_obj.flush()
-  def close(self):
-      self.pbar.close()
-      
-      
-def download_model_artifact(
-    model_name="llama-cpp-qa", 
-    alias="champion", 
-    artifact_path="model_path",
-    gcs_bucket="mlflow-artifacts-bucket",
-):
-    """
-    Download model artifact directly from Google Cloud Storage using run ID.
-    
-    Args:
-        model_name (str): Name of the model in the registry
-        alias (str): Alias of the model version (e.g., 'champion', 'challenger')
-        artifact_path (str): Name of the artifact to download
-        gcs_bucket (str): Name of the GCS bucket
-    
-    Returns:
-        str: Local path to the downloaded artifact
-    """
-    client = MlflowClient()
-    storage_client = storage.Client()
-    
-    # Get the model version by alias
-    model_version = client.get_model_version_by_alias(model_name, alias)
-    run_id = model_version.run_id
-    print(f"Run ID: {run_id}")
-    
-    # Get the run to access artifact URI
-    run = client.get_run(run_id)
-    artifact_uri = run.info.artifact_uri
-    print(f"Artifact URI: {artifact_uri}")
-    # Extract the relative path from the artifact URI
-    # artifact_uri format: gs://bucket/mlflow-artifacts/run_id/artifacts/
-    gcs_path = artifact_uri.replace("mlflow-artifacts:",f"gs://{gcs_bucket}")
-    print(f"GCS Path: {gcs_path}")
-    
-    # Get bucket and blob
-    # Parse the GCS path to get the correct bucket and blob path
-    gcs_path = gcs_path.replace('gs://', '')  # Remove gs:// prefix
-    path_parts = gcs_path.split('/')
-    bucket = storage_client.bucket(gcs_bucket)  # Use the provided bucket name
-    blob_path = '/'.join(path_parts[1:]) + '/' + artifact_path  # Construct full blob path
-    blob_path = blob_path+"/artifacts/model.gguf"
-    blob = bucket.blob(blob_path)
-    blob.reload()
-    print(blob_path , blob.size)
-    
-    # Create local directory if it doesn't exist
-    local_dir = Path(__file__).parent / "models"  # Remove model.gguf from directory path
-    os.makedirs(local_dir, exist_ok=True)
-    
-    # Download to local path
-    local_path = local_dir / "model.gguf"  # Directly specify the output filename
-    with open(local_path, "wb") as file_obj:
-        writer = TqdmWriter(file_obj, blob.size)
-        blob.download_to_file(writer)
-        writer.close()
-    
-    
-    print(f"Artifact downloaded to: {local_path}")
-    return local_path
+CONTAINER_NAME = "llamacpp"
+IMAGE_NAME = "ghcr.io/ggerganov/llama.cpp:server"
+MODEL_MOUNT = f"{Path(__file__).parents[2]}/models:/models"
+MODEL_PATH = "/models/model.gguf"
+PORTS = ["-p", "8000:8000", "-p", "8080:8080"]
+
+@click.group()
+def cli():
+    """CLI tool for model management and inference."""
+    pass
+
+@click.command()
+@click.option("--update", is_flag=True, help="Update the model")
+@click.option("--download", is_flag=True, help="Download the model")
+@click.option("--run", is_flag=True, help="Run a sample inference")
+@click.option("--stop", is_flag=True, help="Stop the model")
+@click.option("--status", is_flag=True, help="Check the status of the model")
+@click.option("--rebuild", is_flag=True, help="Rebuild the Docker image")
+@click.option("--force-download", is_flag=True, help="Force download the model")
+def model(update, download, run, stop, status, rebuild, force_download):
+    """Manage Docker operations."""
+    if update or force_download:
+        click.echo("Checking for model updates 🎸...")
+        mlflow_config = config.config_init()
+        mlflow.set_tracking_uri(mlflow_config['mlflow']['URL'])
+        download_model_artifact_from_gcs(
+            model_name="qa_model",
+            alias="champion",
+            artifact_path="model_path",
+            gcs_bucket="slmops-dev-ml-artifacts",
+            force_download=force_download
+        )
+        subprocess.run(["docker", "pull", IMAGE_NAME], check=True)
         
-  
-
-if __name__ == "__main__":
-    # Example usage
-    mlflow_config = config.config_init()
-    mlflow.set_tracking_uri(mlflow_config['mlflow']['URL'])
-    os.environ["MLFLOW_ENABLE_PROXY_MULTIPART_DOWNLOAD"] = "true"
-    model_path = download_model_artifact(model_name="qa_model", 
-                                          alias="champion", 
-                                          artifact_path="model_path",
-                                          gcs_bucket="slmops-dev-ml-artifacts")
     
+    if download :
+        click.echo("Downloading model...")
+        mlflow_config = config.config_init()
+        mlflow.set_tracking_uri(mlflow_config['mlflow']['URL'])
+        download_model_artifact_from_gcs(
+            model_name="qa_model",
+            alias="champion",
+            artifact_path="model_path",
+            gcs_bucket="slmops-dev-ml-artifacts"
+        )
+    
+    if run:
+        click.echo("Starting model server...")
+        try:
+            cmd = ["docker", "run", "-d", "--name", CONTAINER_NAME]
+            click.echo(f"Setting up Docker container '{CONTAINER_NAME}'...")
+            cmd.extend(PORTS)
+            click.echo(f"Mapping ports: {', '.join(PORTS[::2])} -> {', '.join(PORTS[1::2])}")
+            cmd.extend(["-v", MODEL_MOUNT])
+            click.echo(f"Mounting model directory: {MODEL_MOUNT}")
+            cmd.extend([IMAGE_NAME, "-m", MODEL_PATH])
+            click.echo(f"Using image: {IMAGE_NAME}")
+            click.echo(f"Model path: {MODEL_PATH}")
+            click.echo("Running command: " + " ".join(cmd))
+            
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            click.secho("✅ Container started successfully!", fg="green")
+            click.echo(f"Container ID: {result.stdout.strip()}")
+            click.echo(f"🎉 Server is running! on ports: {', '.join(PORTS[1::2])} 🎉")
+        except subprocess.CalledProcessError as e:
+            click.secho("❌ Failed to start Docker container!", fg="red")
+            click.echo(f"Error: {e.stderr}")
+            raise click.ClickException("Docker container failed to start")
+    
+    if stop:
+        click.echo("Stopping Docker container...")
+        subprocess.run(["docker", "stop", CONTAINER_NAME], check=True)
+        subprocess.run(["docker", "rm", CONTAINER_NAME], check=True)
 
+    if status:
+        click.echo("Checking model status 🎸 ......")
+        model_config = ModelConfig()
+        click.echo(model_config.load_config())
+        update_status = model_needs_update()
+        click.secho("new model is available please run --update to download the new model" if update_status else  "Model is up to date 🚀", fg="green" if not update_status else "yellow")
         
-   
+    if rebuild:
+        click.echo("Pulling latest Docker image...")
+        subprocess.run(["docker", "pull", IMAGE_NAME], check=True)
+    
+    if not any([update, download, run, stop, status, rebuild]):
+        click.echo("Please specify an action: --update, --download, --run, --stop, --status, or --rebuild")
+        
+@click.command()
+def status():
+    """Check server status."""
+    click.echo("Checking server status...")
+    subprocess.run(["docker", "ps", "--filter", f"name={CONTAINER_NAME}"], check=True)
+
+def main():
+    cli.add_command(model)
+    cli.add_command(status)
+    cli() 
+

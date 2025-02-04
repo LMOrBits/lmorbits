@@ -1,4 +1,4 @@
-import config
+import serve.mlflow.config as config
 import mlflow
 import os 
 from llamacpp import LlamaCppModel

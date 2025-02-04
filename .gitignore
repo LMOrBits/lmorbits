@@ -28,3 +28,9 @@ wheels/
 **/.env
 **/*.json
 **/*.ini
+
+
+## ml
+
+**/*.gguf
+**/mlruns
