@@ -17,12 +17,17 @@ ml = { workspace = true }
 application = { workspace = true }
 data = { workspace = true }
 orchestration = { workspace = true }
+serve = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration", ]
+members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration","packages/serve"]
 
 
 [dependency-groups]
+serve-package = [
+    "serve",
+]
+
 not-ml-dev-package = [
     "application",
     "data",

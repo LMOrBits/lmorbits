@@ -7,6 +7,7 @@ import mlflow
 import os
 from datasets import load_dataset
 import numpy as np
+
 def main():
   model_config, mlflow_config = config()
   mlflow.set_tracking_uri(mlflow_config['mlflow']['URL'])
