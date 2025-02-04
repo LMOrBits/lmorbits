@@ -47,6 +47,13 @@ def start_docker_container():
     """Start the Docker container with the model."""
     click.echo("Starting model server...")
     try:
+        # Check if container exists and stop it
+        result = subprocess.run(["docker", "ps", "-q", "-f", f"name={CONTAINER_NAME}"], 
+                              capture_output=True, text=True)
+        if result.stdout.strip():
+            click.echo(f"Container '{CONTAINER_NAME}' is already running. Stopping it...")
+            stop_docker_container()
+
         cmd = ["docker", "run", "-d", "--name", CONTAINER_NAME]
         click.echo(f"Setting up Docker container '{CONTAINER_NAME}'...")
         cmd.extend(PORTS)
