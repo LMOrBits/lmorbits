@@ -13,6 +13,7 @@ run:
 stop:
 	@uv run serve model --stop
 
-
+server-status:
+	@uv run serve status
 
 
