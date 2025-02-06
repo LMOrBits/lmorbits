@@ -49,8 +49,6 @@ def stream_and_upload_from_hf_to_lakefs(hf_dataset_name,dataset:LakeFsDataset,sp
 
                 buffer.clear()
                 chunk_index += 1
-            
-                
 
         if buffer:
             df = pd.DataFrame(buffer)

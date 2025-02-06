@@ -7,6 +7,7 @@ import lakefs
 from lakefs_spec import LakeFSFileSystem
 import os
 from pydantic import BaseModel
+from loguru import logger
 
 
 class DatasetType(Enum):
@@ -146,7 +147,7 @@ class LakeFSClient:
         print(credentials)
         self.branch_manager = BranchManager(default_branch)
         self.repo_manager = RepositoryManager(repo_name, storage_config, self.branch_manager)
-        self.fs = LakeFSFileSystem(
+        self.fs: LakeFSFileSystem = LakeFSFileSystem(
             host=credentials.endpoint_url,
             username=credentials.access_key_id,
             password=credentials.secret_access_key
@@ -213,14 +214,19 @@ class LakeFsDataset:
         return f"{self.lakefs_client.path}/{self.dataset.get_path()}"
     
     def ls_folders(self,path:str=""):
-        list_of_folders = self.lakefs_client.fs.glob(self.full_path + path + "/*/")
+        list_of_folders = self.lakefs_client.fs.glob(self.full_path + path + "/*/" , maxdepth=1)
         if list_of_folders:
             list_of_folders = [folder.split("/")[-2] for folder in list_of_folders]
         return list_of_folders
     
     def ls(self,path:str):
-        list_of_files = self.lakefs_client.fs.glob(self.full_path + path)
+        logger.info(f"Listing files in {self.full_path + path}")
+        list_of_files = self.lakefs_client.fs.glob(self.full_path + path , maxdepth=3 , refresh=True)
         if list_of_files:
             list_of_files = ["lakefs://" + file for file in list_of_files]
         return list_of_files
-    
+   
+    def load_data_files(self,  main_dir: str = "" , format_path :str = "/**/*.parquet") -> dict[str,list[str]]:
+        folders : list[str] = self.ls_folders(path=main_dir)
+        data_files : dict[str,str] = {folder:self.ls(path=f"/{folder}{format_path}") for folder in folders}
+        return data_files 
