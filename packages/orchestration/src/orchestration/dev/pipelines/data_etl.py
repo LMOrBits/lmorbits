@@ -17,6 +17,7 @@ def data_etl_pipeline(
   logger.info(f"Ingesting dataset {hf_dataset_name} into {project_name}/{directory}")
   addresses = []
   info = get_info(hf_dataset_name)
+  info = info.splits
   if splits is not None:
     valid_splits = {splits["name"]: Split(**splits) for splits in splits if splits["name"] in info.keys()}
     if valid_splits is not None:
