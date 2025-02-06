@@ -1,9 +1,9 @@
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template,standardize_sharegpt
-import torch
 from trl import SFTTrainer
 from transformers import TrainingArguments, DataCollatorForSeq2Seq
 from unsloth import is_bfloat16_supported
+from unsloth.chat_templates import train_on_responses_only
 
 # max_seq_length = 2048 # Choose any! We auto support RoPE Scaling internally!
 # dtype = None # None for auto detection. Float16 for Tesla T4, V100, Bfloat16 for Ampere+
@@ -35,19 +35,17 @@ from unsloth import is_bfloat16_supported
 # dataset = load_dataset("mlabonne/FineTome-100k", split = "train[:100]")
 
 
-def formatting_prompts_func(examples, tokenizer):
-    convos = examples["conversations"]
-    texts = [tokenizer.apply_chat_template(convo, tokenize = False, add_generation_prompt = False) for convo in convos]
-    return { "text" : texts, }
 
-def get_trainer_model(model_name, chat_template, dataset, peft_adapters, sft_configs, peft_configs , max_seq_length, dtype, load_in_4bit):
+
+def get_trainer_model( chat_template, dataset, from_pretrained, sft_configs, peft_configs, peft_adapters, mapping , column_to_be_used="conversations"):
     model, tokenizer = FastLanguageModel.from_pretrained(
-                                          model_name = model_name , # or choose "unsloth/Llama-3.2-1B-Instruct"
-                                          max_seq_length = max_seq_length,
-                                          dtype = dtype,
-                                          load_in_4bit = load_in_4bit,
+                                          dtype = None,
+                                          **from_pretrained,
                                           # token = "hf_...", # use one if using gated models like meta-llama/Llama-2-7b-hf
                                         )
+    
+    
+    
     model = FastLanguageModel.get_peft_model(
         model,
         **peft_adapters,
@@ -56,9 +54,16 @@ def get_trainer_model(model_name, chat_template, dataset, peft_adapters, sft_con
     tokenizer = get_chat_template(
         tokenizer,
         chat_template = chat_template,
+        mapping = mapping,
     )
 
-    dataset = standardize_sharegpt(dataset)
+    # dataset = standardize_sharegpt(dataset)
+    
+    def formatting_prompts_func(examples):
+        convos = examples[column_to_be_used]
+        texts = [tokenizer.apply_chat_template(convo, tokenize = False, add_generation_prompt = False) for convo in convos]
+        return { "text" : texts, }
+
     dataset = dataset.map(formatting_prompts_func, batched = True,)
 
     trainer = SFTTrainer(
@@ -68,7 +73,9 @@ def get_trainer_model(model_name, chat_template, dataset, peft_adapters, sft_con
             data_collator = DataCollatorForSeq2Seq(tokenizer = tokenizer),
             **sft_configs,
             args = TrainingArguments(
-              **peft_configs
+              **peft_configs,
+              fp16 = not is_bfloat16_supported(),
+              bf16 = is_bfloat16_supported(),
             ),
         )
 
@@ -77,4 +84,5 @@ def get_trainer_model(model_name, chat_template, dataset, peft_adapters, sft_con
         instruction_part = "<|start_header_id|>user<|end_header_id|>\n\n",
         response_part = "<|start_header_id|>assistant<|end_header_id|>\n\n",
         )
-    return trainer
+    return trainer, tokenizer
+
