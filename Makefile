@@ -1,4 +1,26 @@
 # .PHONY: integrate-kubernetes
+ifneq (,$(wildcard .env))
+    include .env
+    export
+endif
+
+#region Variables
+mlflow_address := $(MLFLOW_ADDRESS)
+mlflow_username := $(MLFLOW_USERNAME)
+mlflow_password := $(MLFLOW_PASSWORD)
+docker_server := $(DOCKER_SERVER)
+docker_json_key := $(shell cat $(DOCKER_JSON_PATH))
+docker_email := $(DOCKER_EMAIL)
+gcs_project_id := $(GCS_PROJECT_ID)
+gcs_bucket_name_ml_artifacts := $(GCS_BUCKET_NAME_ML_ARTIFACTS)
+gcs_bucket_name_data := $(GCS_BUCKET_NAME_DATA)
+gcs_registry_repo_name := $(GCS_REGISTRY_REPO_NAME)
+gcs_region := $(GCS_REGION)
+#endregion
+
+
+
+#region Integrations
 integrate-kubernetes:
 	uv run zenml integration install --uv kubernetes
 
@@ -8,8 +30,10 @@ all-integrations:
 	uv run zenml integration install --uv mlflow -y
 	uv run zenml integration install --uv skypilot_gcp -y
 	uv run zenml integration install --uv skypilot_kubernetes -y
+#endregion
 
-all: 
+#region all at once
+all-k3d: 
 	create-gcs-connector ; 
 	create-gcs-artifact-store ; 
 	create-gcs-container-registry ; 
@@ -17,122 +41,82 @@ all:
 	create-local-image-builder ; 
 	add-mlflow-tracking ; 
 	add-data-validation ; 
-	setup-stack-gcs-mlflow-kubernetes
+	
 
+all-k8s: 
+	@$(MAKE) all-integrations
+	@$(MAKE) create-gcs-connector
+	@$(MAKE) create-gcs-artifact-store
+	@$(MAKE) create-gcs-container-registry
+	@$(MAKE) create-k8s-orchestrator
+	@$(MAKE) create-local-image-builder
+	@$(MAKE) add-mlflow-tracking
+	@$(MAKE) add-data-validation
+	@$(MAKE) k8s-enable-gcs-container-registry
+	@$(MAKE) setup-stack-gcs-mlflow-k8s-gcs
+#endregion
+
+delete-all:
+	uv run zenml stack delete test-stack
+	uv run zenml model-registry delete gcs-mlflow
+	uv run zenml artifact-store delete gcs_store
+	uv run zenml container-registry delete gcs-container-registry
+	uv run zenml orchestrator delete k8s
+	uv run zenml image-builder delete docker-local
+	uv run zenml experiment-tracker delete mlflow_tracker
+	
+#region Handling Stack
 stack-default:
-	uv run stack set default
+	uv run zenml stack set default
 
-create-gcs-connector-sky:
-	uv run zenml service-connector register google_cloud_connector_sky_service \
-		--type gcp \
-		--auto-configure \
-		--auth-method=service-account \
-		--project_id=slmops-dev \
+stack-k8s:
+	uv run zenml stack set stack-k8s-gcs
+#endregion
+
+#region GCP Services
 
 create-gcs-connector:
 	uv run zenml integration install gcp -y --uv
 	uv run zenml service-connector register google_cloud_connector --type gcp \
 		--auto-configure \
-		--project_id=slmops-dev 
+		--project_id=$(gcs_project_id)
 
 create-gcs-artifact-store:
 	uv run zenml artifact-store register gcs_store -f gcp \
-		--path=gs://slmops-dev-ml-artifacts \
+		--path=gs://$(gcs_bucket_name_ml_artifacts) \
 		--authentication_secret=gcp_secret
 	uv run zenml artifact-store connect gcs_store --connector google_cloud_connector
 
 create-gcs-container-registry:
 	uv run zenml container-registry register gcs-container-registry \
 		--flavor=gcp \
-		--uri=europe-north1-docker.pkg.dev/slmops-dev/images-dev
+		--uri=$(docker_server)/$(gcs_project_id)/$(gcs_registry_repo_name)
 	uv run zenml container-registry connect gcs-container-registry --connector google_cloud_connector
 
+create-gcs-connector-sky:
+	uv run zenml service-connector register google_cloud_connector_sky_service \
+		--type gcp \
+		--auto-configure \
+		--auth-method=service-account \
+		--project_id=$(gcs_project_id)
+#endregion
 
+#region Orchestrator Setup
+
+# K3d Orchestrator Setup
 create-k3d-orchestrator:
 	uv run zenml orchestrator register k3d-orchestrator \
 		--flavor=kubernetes \
 		--kubernetes_context=k3d-slmops-cluster
 	kubectl create namespace zenml
 
+# K8s Orchestrator Setup
 create-k8s-orchestrator:
 	uv run zenml orchestrator register k8s\
 		--flavor=kubernetes \
 		--kubernetes_context=$$(kubectl config current-context)
 
-
-create-local-image-builder:
-	uv run zenml image-builder register docker-local --flavor=local
-	kubectl create secret generic registry-secret \
-		--from-file=.dockerconfigjson=$$HOME/.docker/config.json \
-		--type=kubernetes.io/dockerconfigjson
-
-add-mlflow-tracking-local:
-	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
-		--tracking_username=admin --tracking_password=slmops \
-		--tracking_uri=http://mlflow-server-tracking.default.svc.cluster.local:5000
-	uv run zenml model-registry register -f mlflow gcs-mlflow
-
-add-mlflow-tracking:
-	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
-		--tracking_username=slmops --tracking_password="j6rXZAkyS}MOeYha" \
-		--tracking_uri=https://mlflow.lmorbits.com/
-	uv run zenml model-registry register -f mlflow gcs-mlflow
-
-add-data-validation:
-	uv run zenml integration install deepchecks -y --uv
-	uv run zenml data-validator register deepchecks_data_validator --flavor=deepchecks
-
-setup-stack-gcs-mlflow-kubernetes:
-	uv run zenml stack register test-stack \
-	--artifact-store gcs_store \
-	--orchestrator k3d-orchestrator \
-	--container_registry gcs-container-registry \
-	--image_builder docker-local \
-	--model_registry gcs-mlflow \
-	--experiment_tracker mlflow_tracker \
-	--set
-	uv run zenml stack set test-stack
-
-add-starter-deps:
-	uv run zenml integration install sklearn pandas -y --uv
-
-k3d-enable-gcs-container-registry:
-	kubectl apply -f src/orchestration/zenml/scripts/access.yaml
-	kubectl patch serviceaccount default -n zenml \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-	kubectl patch serviceaccount zenml-service-account -n zenml \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-	kubectl patch serviceaccount default  \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-
-	kubectl create secret docker-registry artifact-registry-secret \
-		--docker-server=https://europe-north1-docker.pkg.dev \
-    --docker-username=_json_key \
-    --docker-password="$$(cat ../cloud/terraform/environments/dev/keys/super-admin-key.json)" \
-    --docker-email=super-admin-dev@slmops-dev.iam.gserviceaccount.com
-		--namespace zenml
-
-
-
-k8s-enable-gcs-container-registry:
-	kubectl apply -f zenml_starter/access.yaml
-	kubectl patch serviceaccount default -n zenml \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-	kubectl patch serviceaccount zenml-service-account -n zenml \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-	kubectl patch serviceaccount default  \
-  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
-
-	kubectl create secret docker-registry artifact-registry-secret \
-		--docker-server=https://europe-north1-docker.pkg.dev \
-    --docker-username=_json_key \
-    --docker-password="$$(cat ../cloud/terraform/environments/dev/keys/super-admin-key.json)" \
-    --docker-email=super-admin-dev@slmops-dev.iam.gserviceaccount.com
-		--namespace zenml
-
-
-
-
+# SkyPilot Integration Setup
 add-sky-kube:
 	uv run zenml zenml integration install skypilot_kubernete  -y --uv
 	uv run zenml orchestrator register sky-kube --flavor sky_kubernetes
@@ -143,6 +127,82 @@ add-sky-gcs:
 	uv run zenml orchestrator register sky-gcs --flavor vm_gcp
 	uv run zenml orchestrator connect sky-gcs --connector google_cloud_connector_sky_service
 	uv run zenml service-connector update google_cloud_connector_sky_service --generate_temporary_tokens=False	
+
+
+## --= Enable GCS Container Registry =--
+
+# K3d
+k3d-enable-gcs-container-registry:
+	kubectl apply -f packages/orchestration/src/orchestration/scripts/access.yaml
+	kubectl patch serviceaccount default -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount zenml-service-account -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount default \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+
+	kubectl create secret docker-registry artifact-registry-secret --namespace zenml \
+		--docker-server="$(docker_server)" \
+		--docker-username="_json_key" \
+		--docker-password='$(docker_json_key)' \
+		--docker-email="$(docker_email)"
+
+# K8s
+k8s-enable-gcs-container-registry:
+	kubectl apply -f packages/orchestration/src/orchestration/scripts/access.yaml
+	kubectl patch serviceaccount default -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount zenml-service-account -n zenml \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+	kubectl patch serviceaccount default \
+  	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
+
+	kubectl create secret docker-registry artifact-registry-secret --namespace zenml \
+		--docker-server="$(docker_server)" \
+		--docker-username="_json_key" \
+		--docker-password='$(docker_json_key)' \
+		--docker-email="$(docker_email)"
+ #endregion
+
+#region Image Builder Setup
+create-local-image-builder:
+	uv run zenml image-builder register docker-local --flavor=local
+	kubectl create secret generic registry-secret \
+		--from-file=.dockerconfigjson=$$HOME/.docker/config.json \
+		--type=kubernetes.io/dockerconfigjson
+#endregion
+
+#region MLflow Setup
+add-mlflow-tracking-local:
+	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
+		--tracking_username=admin --tracking_password=slmops \
+		--tracking_uri=http://mlflow-server-tracking.default.svc.cluster.local:5000
+	uv run zenml model-registry register -f mlflow gcs-mlflow
+
+add-mlflow-tracking:
+	uv run zenml experiment-tracker register mlflow_tracker --flavor=mlflow \
+		--tracking_username=$(mlflow_username) --tracking_password=$(mlflow_password) \
+		--tracking_uri=$(mlflow_address)
+	uv run zenml model-registry register -f mlflow gcs-mlflow
+
+show-variables:
+	echo "mlflow_address: $(mlflow_address)"
+	echo "mlflow_username: $(mlflow_username)"
+	echo "mlflow_password: $(mlflow_password)"
+	echo "docker_server: $(docker_server)"
+	echo "docker_json_key: $(docker_json_key)"
+	echo "docker_email: $(docker_email)"
+#endregion
+
+#region Data Validation Setup
+add-data-validation:
+	uv run zenml integration install deepchecks -y --uv
+	uv run zenml data-validator register deepchecks_data_validator --flavor=deepchecks
+
+
+#endregion
+
+#region Stack Configurations
 setup-stack-gcs-mlflow-sky-kube:
 	uv run zenml stack register stack-sky-kube \
 	--artifact-store gcs_store \
@@ -168,53 +228,23 @@ setup-stack-gcs-mlflow-sky-gcs:
 setup-stack-gcs-mlflow-k8s-gcs:
 	uv run zenml stack register stack-k8s-gcs \
 	--artifact-store gcs_store \
-	--orchestrator k8s\
+	--orchestrator k8s \
 	--container_registry gcs-container-registry \
 	--image_builder docker-local \
 	--model_registry gcs-mlflow \
 	--experiment_tracker mlflow_tracker \
 	--set
 	uv run zenml stack set stack-k8s-gcs
+	uv run zenml stack list
 
+#endregion
 
-
-setup-stack-gcs-mlflow-k8s-gcs:
-	uv run zenml stack register stack-k8s-gcs \
-	--artifact-store gcs_store \
-	--orchestrator k8s\
-	--container_registry gcs-container-registry \
-	--image_builder docker-local \
-	--model_registry gcs-mlflow \
-	--experiment_tracker mlflow_tracker \
-	--set
-	uv run zenml stack set stack-k8s-gcs
-
-setup-stack-gcs-mlflow-k8s-gcs:
-	uv run zenml stack register stack-k8s-gcs \
-	--artifact-store gcs_store \
-	--orchestrator k8s\
-	--container_registry gcs-container-registry \
-	--image_builder docker-local \
-	--model_registry gcs-mlflow \
-	--experiment_tracker mlflow_tracker \
-	--set
-	uv run zenml stack set stack-k8s-gcs
-
-
-setup-stack-local:
-	uv run zenml stack register stack-local \
-	--orchestrator default \
-	--artifact-store gcs_store \
-	--model_registry gcs-mlflow \
-	--experiment_tracker mlflow_tracker \
-	--set
-	uv run zenml stack set stack-local
-
+#region Docker Build for slmops packages
 
 # Define variables
-PROJECT_ID := slmops-dev
-REGION := europe-north1
-REPO_NAME := images-dev
+PROJECT_ID := $(gcs_project_id)
+REGION := $(gcs_region)
+REPO_NAME := $(gcs_registry_repo_name)
 GP ?= "none"
 TAG := latest
 # BUILDPLATFORM := linux/amd64,linux/arm64
@@ -240,7 +270,7 @@ tag:
 
 # Authenticate Docker with Google Artifact Registry
 auth:
-	gcloud auth configure-docker $(REGION)-docker.pkg.dev
+	gcloud auth configure-docker $(docker_server)
 
 # Push the image to Google Artifact Registry
 push: auth tag
@@ -259,3 +289,4 @@ sky-up:
 
 sky-down:
 	uv run sky down gpu-l4
+#endregion
