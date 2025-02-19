@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  all-integrations:
+    cmds:
+      - uv run zenml integration install --uv kubernetes -y
+      - uv run zenml integration install --uv gcp -y
+      - uv run zenml integration install --uv mlflow -y
+
+  sky-instance-integrations:
+    cmds:
+      - uv run zenml integration install --uv gcp -y
+      - uv run zenml integration install --uv mlflow -y

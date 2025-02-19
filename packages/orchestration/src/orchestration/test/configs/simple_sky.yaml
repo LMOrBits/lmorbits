@@ -1,0 +1,33 @@
+steps:
+  test_sky_simple:
+    enable_cache: false
+    parameters:
+      sky_config:
+        resources:
+          image_id: docker:ghcr.io/astral-sh/uv:bookworm-slim
+          cloud: gcp
+          cpus: 2+
+          zone: europe-north1-a
+          ports: 
+            - 8080
+            - 5000
+          memory: 1+
+          disk_tier: low
+
+        setup: |
+          echo "Running setup commands..."
+          conda deactivate
+          sudo apt update && apt install -y g++ make build-essential 
+          cd /lmorbits/packages/orchestration
+          uv sync 
+          uv run task zenml:integrations:sky-instance-integrations
+
+        run: |
+          echo "Executing main task..."
+          conda deactivate
+          cd /lmorbits/packages/orchestration
+          uv run zenml init
+          uv run zenml stack list
+          uv run zenml stack set stack-local
+          cd /lmorbits/packages/orchestration/src/orchestration/test
+          uv run plot.py

@@ -1,0 +1,6 @@
+version: '3'
+dotenv: [".env"]
+
+includes:
+  zenml: scripts/tasks/zenml/Taskfile.yml
+

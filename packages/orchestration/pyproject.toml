@@ -11,8 +11,49 @@ dependencies = [
     "loguru>=0.7.3",
     "pydantic>=2.8.2",
     "plotly>=6.0.0",
-    
+    "uv>=0.6.0",
+    "python-dotenv>=1.0.1",
+    "zenml==0.71",
+    "go-task-bin>=3.41.0",
 ]
+
+[project.optional-dependencies]
+skypilot-gcp = [
+    "skypilot[gcp]>=0.8.0",
+]
+[tool.uv.sources]
+ml = { path = "../ml" }
+application = { path = "../application"}
+data = { path = "../data"}
+orchestration = { path = "../orchestration" }
+serve = { path = "../serve" }
+
+[dependency-groups]
+data-package = [
+    "data",
+]
+
+ml-package = [
+    "ml",
+]
+
+app-package = [
+    "application",
+]
+
+ml-data-package = [
+    "ml",
+    "data",
+]
+
+all-package = [
+    "application",
+    "data",
+    "ml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/orchestration"]
 
 [project.scripts]
 orchestration = "orchestration:main"
@@ -20,3 +61,5 @@ orchestration = "orchestration:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+

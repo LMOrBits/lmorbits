@@ -1,7 +1,7 @@
 import serve.mlflow.config as config
 import mlflow
 import os 
-from llamacpp import LlamaCppModel
+from serve.experiment.mlflow.llamacpp import LlamaCppModel
 from loguru import logger
 
 def enable_multipart_upload():  

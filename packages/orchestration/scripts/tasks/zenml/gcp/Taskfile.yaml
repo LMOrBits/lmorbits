@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+    create-gcs-connector:
+        cmds:
+            - uv run zenml integration install gcp -y --uv
+            - uv run zenml service-connector register google_cloud_connector --type gcp \
+                --auto-configure \
+                --project_id=$(GCS_PROJECT_ID)
+
+    # create-gcs-artifact-store:
+    #     cmds:
+    #         - uv run zenml artifact-store register gcs_store -f gcp \
+    #             --path=gs://$(gcs_bucket_name_ml_artifacts) \
+    #             --authentication_secret=gcp_secret
+    #         - uv run zenml artifact-store connect gcs_store --connector google_cloud_connector
+
+    # create-gcs-container-registry:
+    #     cmds:
+    #         - uv run zenml container-registry register gcs-container-registry \
+    #             --flavor=gcp \
+    #             --uri=$(docker_server)/$(gcs_project_id)/$(gcs_registry_repo_name)
+    #         - uv run zenml container-registry connect gcs-container-registry --connector google_cloud_connector
+
+    # create-gcs-connector-sky:
+    #     cmds:
+    #         - uv run zenml service-connector register google_cloud_connector_sky_service \
+    #             --type gcp \
+    #             --auth-method=service-account \
+    #             --service_account_json='$(sky_service_account_json_path)' \
+    #             --project_id=$(gcs_project_id)
+
