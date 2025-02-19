@@ -507,7 +507,7 @@ wheels = [
 [[package]]
 name = "data"
 version = "0.1.0"
-source = { virtual = "../data" }
+source = { directory = "../data" }
 dependencies = [
     { name = "dask", extra = ["complete"] },
     { name = "datasets" },
@@ -1534,6 +1534,7 @@ name = "ml"
 version = "0.1.0"
 source = { directory = "../ml" }
 dependencies = [
+    { name = "go-task-bin" },
     { name = "google-cloud-storage" },
     { name = "mlflow" },
     { name = "omegaconf" },
@@ -1542,6 +1543,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "go-task-bin", specifier = ">=3.41.0" },
     { name = "google-cloud-storage", specifier = ">=2.14.0" },
     { name = "mlflow", specifier = ">=2.20.1" },
     { name = "omegaconf", specifier = ">=2.3.0" },
@@ -1889,13 +1891,13 @@ provides-extras = ["skypilot-gcp"]
 [package.metadata.requires-dev]
 all-package = [
     { name = "application", directory = "../application" },
-    { name = "data", virtual = "../data" },
+    { name = "data", directory = "../data" },
     { name = "ml", directory = "../ml" },
 ]
 app-package = [{ name = "application", directory = "../application" }]
-data-package = [{ name = "data", virtual = "../data" }]
+data-package = [{ name = "data", directory = "../data" }]
 ml-data-package = [
-    { name = "data", virtual = "../data" },
+    { name = "data", directory = "../data" },
     { name = "ml", directory = "../ml" },
 ]
 ml-package = [{ name = "ml", directory = "../ml" }]
