@@ -28,5 +28,7 @@ nlp = [
 packages = ["src/data"]
 
 
-
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
