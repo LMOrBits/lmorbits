@@ -5,44 +5,49 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+  "go-task-bin>=3.41.0",
   "omegaconf>=2.3.0",
-  "skypilot==0.7",
   "uv>=0.5.18",
-  "skypilot[gcp,google,kubernetes]==0.7",
   "zenml[connectors-gcp]==0.71.0",
 ]
 
+
+
 [tool.uv.sources]
-ml = { workspace = true }
-application = { workspace = true }
-data = { workspace = true }
-orchestration = { workspace = true }
-serve = { workspace = true }
-
-[tool.uv.workspace]
-members = ["packages/ml", "packages/data", "packages/application", "packages/orchestration","packages/serve"]
-
+ml = { path = "packages/ml" }
+application = { path = "packages/application"}
+data = { path = "packages/data"}
+orchestration = { path = "packages/orchestration" }
+serve = { path = "packages/serve" }
 
 [dependency-groups]
 serve-package = [
     "serve",
 ]
 
-not-ml-dev-package = [
+orchestration-package = [
+    "orchestration",
+]
+
+not-ml-dev = [
     "application",
     "data",
     "orchestration",
     "ipykernel>=6.29.5",
 ]
-data-package = [
-    "data",
+
+data-nl-package = [
+    "data[nlp]",
 ]
+
 ml-package = [
     "ml",
 ]
+
 app-package = [
     "application",
 ]
+
 all-dev = [
     "application",
     "data",
@@ -50,14 +55,10 @@ all-dev = [
     "ml",
     "orchestration",
 ]
+
 all-package = [
     "application",
     "data",
     "ml",
     "orchestration",
 ]
-[tool.hatch.build.targets.wheel]
-packages = ["."]
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"

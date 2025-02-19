@@ -8,19 +8,40 @@ endif
 mlflow_address := $(MLFLOW_ADDRESS)
 mlflow_username := $(MLFLOW_USERNAME)
 mlflow_password := $(MLFLOW_PASSWORD)
-docker_server := $(DOCKER_SERVER)
+
 docker_json_key := $(shell cat $(DOCKER_JSON_PATH))
+
 docker_email := $(DOCKER_EMAIL)
+docker_server := $(DOCKER_SERVER)
+
 gcs_project_id := $(GCS_PROJECT_ID)
 gcs_bucket_name_ml_artifacts := $(GCS_BUCKET_NAME_ML_ARTIFACTS)
 gcs_bucket_name_data := $(GCS_BUCKET_NAME_DATA)
 gcs_registry_repo_name := $(GCS_REGISTRY_REPO_NAME)
 gcs_region := $(GCS_REGION)
+sky_service_account_json_path := $(shell cat $(SKY_SERVICE_ACCOUNT_JSON_PATH))
+ml_dev_user_name := $(or $(ML_DEV_USER_NAME),"ML_DEV")
+ml_dev_user_password := $(or $(ML_DEV_USER_PASSWORD),"ML_DEV")
+
+data_dev_user_name := $(or $(DATA_DEV_USER_NAME),"DATA_DEV")
+data_dev_user_password := $(or $(DATA_DEV_USER_PASSWORD),"DATA_DEV")
+
+serve_user_name := $(or $(SERVE_USER_NAME),"SERVE")
+serve_user_password := $(or $(SERVE_USER_PASSWORD),"SERVE")
+
+orchestrator_user_name := $(or $(ORCHESTRATOR_USER_NAME),"ORCHESTRATOR")
+orchestrator_user_password := $(or $(ORCHESTRATOR_USER_PASSWORD),"ORCHESTRATOR")
+
+application_user_name := $(or $(APPLICATION_USER_NAME),"APPLICATION")
+application_user_password := $(or $(APPLICATION_USER_PASSWORD),"APPLICATION")
+
 #endregion
 
 
 
 #region Integrations
+
+
 integrate-kubernetes:
 	uv run zenml integration install --uv kubernetes
 
@@ -32,16 +53,37 @@ all-integrations:
 	uv run zenml integration install --uv skypilot_kubernetes -y
 #endregion
 
+#region users
+create-users:
+	uv run zenml user create $(ml_dev_user_name) --password $(ml_dev_user_password) --is_admin
+	uv run zenml user create $(data_dev_user_name) --password $(data_dev_user_password) --is_admin
+	uv run zenml user create $(serve_user_name) --password $(serve_user_password) --is_admin
+	uv run zenml user create $(orchestrator_user_name) --password $(orchestrator_user_password) --is_admin
+	uv run zenml user create $(application_user_name) --password $(application_user_password)
+#endregion
+#region service account
+create-service-account:
+	uv run zenml service-account create sky-service-account
+#endregion
 #region all at once
-all-k3d: 
-	create-gcs-connector ; 
-	create-gcs-artifact-store ; 
-	create-gcs-container-registry ; 
-	create-k3d-orchestrator ; 
-	create-local-image-builder ; 
-	add-mlflow-tracking ; 
-	add-data-validation ; 
+# all-k3d: 
+# 	create-gcs-connector ; 
+# 	create-gcs-artifact-store ; 
+# 	create-gcs-container-registry ; 
+# 	create-k3d-orchestrator ; 
+# 	create-local-image-builder ; 
+# 	add-mlflow-tracking ; 
+# 	add-data-validation ; 
 	
+local-gcs:
+# @$(MAKE) create-gcs-connector
+# @$(MAKE) create-gcs-artifact-store
+	@$(MAKE) create-local-orchestrator
+	@$(MAKE) setup-stack-local-gcs-mlflow
+
+local-gpu-gcs:
+	@$(MAKE) create-local-gpu-orchestrator
+	@$(MAKE) setup-stack-local-gpu-gcs-mlflow
 
 all-k8s: 
 	@$(MAKE) all-integrations
@@ -55,6 +97,12 @@ all-k8s:
 	@$(MAKE) k8s-enable-gcs-container-registry
 	@$(MAKE) setup-stack-gcs-mlflow-k8s-gcs
 #endregion
+
+sky-gcs:
+	@$(MAKE) all-integrations
+	@$(MAKE) create-gcs-connector-sky
+	@$(MAKE) add-sky-gcs
+	@$(MAKE) setup-stack-gcs-mlflow-sky-gcs
 
 delete-all:
 	uv run zenml stack delete test-stack
@@ -94,14 +142,22 @@ create-gcs-container-registry:
 	uv run zenml container-registry connect gcs-container-registry --connector google_cloud_connector
 
 create-gcs-connector-sky:
-	uv run zenml service-connector register google_cloud_connector_sky_service \
+	@uv run zenml service-connector register google_cloud_connector_sky_service \
 		--type gcp \
-		--auto-configure \
 		--auth-method=service-account \
+		--service_account_json='$(sky_service_account_json_path)' \
 		--project_id=$(gcs_project_id)
 #endregion
 
 #region Orchestrator Setup
+# local orchestrator setup
+create-local-orchestrator:
+	uv run zenml orchestrator register simple-local \
+		--flavor=local
+# local gpu orchestrator setup
+create-local-gpu-orchestrator:
+	uv run zenml orchestrator register simple-local-gpu \
+		--flavor=local
 
 # K3d Orchestrator Setup
 create-k3d-orchestrator:
@@ -203,16 +259,26 @@ add-data-validation:
 #endregion
 
 #region Stack Configurations
-setup-stack-gcs-mlflow-sky-kube:
-	uv run zenml stack register stack-sky-kube \
+setup-stack-local-gcs-mlflow:
+	uv run zenml stack copy default stack-local
+	uv run zenml stack update stack-local \
 	--artifact-store gcs_store \
-	--orchestrator sky-kube \
-	--container_registry gcs-container-registry \
-	--image_builder docker-local \
 	--model_registry gcs-mlflow \
 	--experiment_tracker mlflow_tracker \
-	--set
-	uv run zenml stack set stack-sky-kube
+	--orchestrator simple-local 
+
+	uv run zenml stack set stack-local
+
+setup-stack-local-gpu-gcs-mlflow:
+	uv run zenml stack copy default stack-local-gpu
+	uv run zenml stack update stack-local-gpu \
+	--artifact-store gcs_store \
+	--model_registry gcs-mlflow \
+	--experiment_tracker mlflow_tracker \
+	--orchestrator simple-local-gpu 
+
+	uv run zenml stack set stack-local-gpu
+
 
 setup-stack-gcs-mlflow-sky-gcs:
 	uv run zenml stack register stack-sky-gcs \
@@ -222,6 +288,7 @@ setup-stack-gcs-mlflow-sky-gcs:
 	--image_builder docker-local \
 	--model_registry gcs-mlflow \
 	--experiment_tracker mlflow_tracker \
+	--connector google_cloud_connector_sky_service \
 	--set
 	uv run zenml stack set stack-sky-gcs
 
