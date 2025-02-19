@@ -5,6 +5,10 @@
       "path": "packages/data"
     },
     {
+      "name": "ML",
+      "path": "packages/ml"
+    },
+    {
       "name": "Orchestrator",
       "path": "packages/orchestration"
     }

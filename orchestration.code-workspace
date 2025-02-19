@@ -1,10 +1,6 @@
 {
   "folders": [
     {
-      "name": "Data",
-      "path": "packages/data"
-    },
-    {
       "name": "Orchestrator",
       "path": "packages/orchestration"
     }
