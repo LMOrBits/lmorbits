@@ -5,3 +5,7 @@ includes:
     taskfile: scripts/tasks/Taskfile.yaml
     dir: '{{.TASKFILE_DIR}}' 
 
+tasks:
+  ruff-format:
+    cmds:
+      - uvx ruff format

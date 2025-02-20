@@ -1,7 +1,9 @@
 from ml.config import config
 from data.utils.lakefs import LakeFSCredentials
-from data.utils.lakefs import LakeFsDataset,DatasetType
+from data.utils.lakefs import LakeFsDataset, DatasetType
 from datasets import load_dataset
+
+
 def get_dataset(
     directory: str,
     project_name: str,
@@ -10,14 +12,17 @@ def get_dataset(
     split: str = "train",
     num_proc: int = 2,
 ):
-  config()
-  credentials = LakeFSCredentials.from_env()
-  lakefs_dataset = LakeFsDataset(credentials=credentials,
-                               dataset_type=DatasetType(dataset_type), 
-                               directory=directory, 
-                               project_name=project_name, 
-                              )
+    config()
+    credentials = LakeFSCredentials.from_env()
+    lakefs_dataset = LakeFsDataset(
+        credentials=credentials,
+        dataset_type=DatasetType(dataset_type),
+        directory=directory,
+        project_name=project_name,
+    )
 
-  data_files = lakefs_dataset.load_data_files()
-  dataset = load_dataset("parquet", data_files=data_files , split=split, num_proc=num_proc)
-  return dataset
+    data_files = lakefs_dataset.load_data_files()
+    dataset = load_dataset(
+        "parquet", data_files=data_files, split=split, num_proc=num_proc
+    )
+    return dataset
