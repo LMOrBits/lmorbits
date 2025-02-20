@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.13' and sys_platform != 'win32'",
@@ -530,7 +529,6 @@ requires-dist = [
     { name = "symspellpy", specifier = ">=6.7.8" },
     { name = "zenml", specifier = "==0.71.0" },
 ]
-provides-extras = ["dev", "nlp"]
 
 [[package]]
 name = "databricks-sdk"
@@ -1534,6 +1532,7 @@ name = "ml"
 version = "0.1.0"
 source = { directory = "../ml" }
 dependencies = [
+    { name = "data" },
     { name = "go-task-bin" },
     { name = "google-cloud-storage" },
     { name = "mlflow" },
@@ -1543,6 +1542,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "data", directory = "../data" },
     { name = "go-task-bin", specifier = ">=3.41.0" },
     { name = "google-cloud-storage", specifier = ">=2.14.0" },
     { name = "mlflow", specifier = ">=2.20.1" },
@@ -1886,7 +1886,6 @@ requires-dist = [
     { name = "uv", specifier = ">=0.6.0" },
     { name = "zenml", specifier = "==0.71" },
 ]
-provides-extras = ["skypilot-gcp"]
 
 [package.metadata.requires-dev]
 all-package = [

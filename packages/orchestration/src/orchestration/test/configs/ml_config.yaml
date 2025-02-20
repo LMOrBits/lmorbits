@@ -39,13 +39,11 @@ steps:
         seed: 3407
         output_dir: "outputs"
 
-steps:
   test_quntization:
     enable_cache: false
     parameters:
       quantization_method: "q5_k_m"
 
-steps:
   test_fineruning_dataset_ingestion:
     enable_cache: false
     parameters:
@@ -64,14 +62,14 @@ steps:
             content: "content"
             user: "user"
             assistant: "assistant"
-        # hf: 
-        #   name: "mlabonne/FineTome-100k"
-        #   split: "train"
-        #   chat_mapping:
-        #     role: "from"
-        #     content: "value"
-        #     user: "human"
-        #     assistant: "gpt"
+          # hf: 
+          #   name: "mlabonne/FineTome-100k"
+          #   split: "train"
+          #   chat_mapping:
+          #     role: "from"
+          #     content: "value"
+          #     user: "human"
+          #     assistant: "gpt"
 
 
-      
+        

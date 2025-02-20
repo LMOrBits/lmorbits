@@ -14,6 +14,6 @@ client.create_secret(
         "LAKECTL_SERVER_ENDPOINT_URL": credentials.endpoint_url,
         "LAKECTL_CREDENTIALS_ACCESS_KEY_ID": credentials.access_key_id,
         "LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY": credentials.secret_access_key,
-        "LAKECTL_NAMESPACE": credentials.namespace
-    }
+        "LAKECTL_NAMESPACE": credentials.namespace,
+    },
 )

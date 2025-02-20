@@ -1,8 +1,10 @@
-version: '3'
+version: "3"
 dotenv: [".env"]
 
 includes:
   zenml: scripts/tasks/zenml/Taskfile.yml
 
-
-
+tasks:
+  ruff-format:
+    cmds:
+      - uvx ruff format

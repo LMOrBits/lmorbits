@@ -12,7 +12,6 @@ def display_table(dataset_or_sample):
     pd.set_option("display.width", None)
     pd.set_option("display.max_rows", None)
 
-
     if isinstance(dataset_or_sample, dict):
         df = pd.DataFrame(dataset_or_sample, index=[0])
     elif isinstance(dataset_or_sample, pd.DataFrame):
