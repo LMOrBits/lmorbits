@@ -1,9 +1,10 @@
-version: '3'
+version: "3"
 includes:
   integrations: integrations/Taskfile.yml
+  secrets: secrets/Taskfile.yml
 
 vars:
-  ZENML_HOST: 
+  ZENML_HOST:
     sh: echo "${ZENML_HOST:-https://zenml.lmorbits.com}"
 
 tasks:
@@ -11,3 +12,13 @@ tasks:
     cmds:
       - uv run zenml init
       - uv run zenml login {{.ZENML_HOST}}
+
+  delete-test-pipelines:
+    cmds:
+      - uv run scripts/delete_pipelines.py -y --pipeline_name test_
+      - uv run zenml artifact prune
+
+  delete-dev-pipelines:
+    cmds:
+      - uv run scripts/delete_pipelines.py -y --pipeline_name dev_
+      - uv run zenml artifact prune

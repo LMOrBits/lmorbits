@@ -17,14 +17,8 @@ def zenml_orchestration_run_skypilot_task(
     zenml_store_api_key: Optional[str] = None,
     cluster_name: Optional[str] = "skypilot-cluster",
 ):
-    zenml_store_url = (
-        zenml_store_url if zenml_store_url else os.getenv("ZENML_STORE_URL")
-    )
-    zenml_store_api_key = (
-        zenml_store_api_key
-        if zenml_store_api_key
-        else os.getenv("SKY_ZENML_STORE_API_KEY")
-    )
+    zenml_store_url = zenml_store_url if zenml_store_url else os.getenv("ZENML_STORE_URL")
+    zenml_store_api_key = zenml_store_api_key if zenml_store_api_key else os.getenv("SKY_ZENML_STORE_API_KEY")
     assert zenml_store_url and zenml_store_api_key, (
         "zenml_store_url and zenml_store_api_key must be provided or set in the environment ZENML_STORE_URL and SKY_ZENML_STORE_API_KEY"
     )
@@ -97,9 +91,7 @@ def convert_multiline_to_list(data: dict) -> dict:
 
     for key in data.keys():  # Only process 'run' and 'setup' keys
         if key in data and isinstance(data[key], str):
-            output[key] = (
-                data[key].strip().split("\n")
-            )  # Convert string to list of lines
+            output[key] = data[key].strip().split("\n")  # Convert string to list of lines
         else:
             output[key] = data[key]
 
@@ -112,9 +104,7 @@ def prettify_task_config(task_config: Dict[str, Any]):
 
 if __name__ == "__main__":
     load_dotenv(str(Path(__file__).parents[5] / ".env"))
-    task_config = yaml.safe_load(
-        open(Path(f"{__file__}").parents[1] / "test/configs/simple_sky.yaml")
-    )
+    task_config = yaml.safe_load(open(Path(f"{__file__}").parents[1] / "test/configs/simple_sky.yaml"))
     # zenml_orchestration_run_skypilot_task(task_config=task_config["steps"]["test_sky_simple"]["parameters"]["sky_config"],
     #                                       zenml_store_url=os.getenv("ZENML_HOST"),
     #                                       zenml_store_api_key=os.getenv("ZENML_SKY_SERVICE_ACCOUNT_KEY"))

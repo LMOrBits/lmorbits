@@ -20,7 +20,9 @@ def display_table(dataset_or_sample):
         df = pd.DataFrame(dataset_or_sample)
 
     html = df.to_html().replace("\\n", "<br>")
-    styled_html = f"""<style> .dataframe th, .dataframe tbody td {{ text-align: left; padding-right: 30px; }} </style> {html}"""
+    styled_html = (
+        f"""<style> .dataframe th, .dataframe tbody td {{ text-align: left; padding-right: 30px; }} </style> {html}"""
+    )
     display(HTML(styled_html))
 
 

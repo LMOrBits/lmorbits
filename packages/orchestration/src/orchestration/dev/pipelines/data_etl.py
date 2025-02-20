@@ -23,11 +23,7 @@ def data_etl_pipeline(
     info = get_info(hf_dataset_name)
     info = info.splits
     if splits is not None:
-        valid_splits = {
-            splits["name"]: Split(**splits)
-            for splits in splits
-            if splits["name"] in info.keys()
-        }
+        valid_splits = {splits["name"]: Split(**splits) for splits in splits if splits["name"] in info.keys()}
         if valid_splits is not None:
             splits = valid_splits
         else:
@@ -44,9 +40,7 @@ def data_etl_pipeline(
 
 def main():
     cfg = OmegaConf.load(Path(__file__).parent.parent / "configs" / "data_ingest.yaml")
-    dataetl_pipeline_configured = data_etl_pipeline.with_options(
-        **OmegaConf.to_container(cfg)
-    )
+    dataetl_pipeline_configured = data_etl_pipeline.with_options(**OmegaConf.to_container(cfg))
     dataetl_pipeline_configured()
 
 

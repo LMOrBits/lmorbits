@@ -19,6 +19,4 @@ def test_sky_simple_pipeline():
 
 
 if __name__ == "__main__":
-    test_sky_simple_pipeline.with_options(
-        config_path=Path(f"{__file__}").parent / "configs/simple_sky.yaml"
-    )()
+    test_sky_simple_pipeline.with_options(config_path=Path(f"{__file__}").parent / "configs/simple_sky.yaml")()

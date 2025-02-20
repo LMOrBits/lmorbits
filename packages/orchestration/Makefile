@@ -12,13 +12,7 @@ init-data:
 	$(MAKE) data-zen-integrations
 
 
-delete-test-pipelines:
-	uv run src/orchestration/scripts/delete_pipelines.py --pipeline_name test_
-	uv run zenml artifact prune
 
-delete-dev-pipelines:
-	uv run src/orchestration/scripts/delete_pipelines.py --pipeline_name dev_
-	uv run zenml artifact prune
 
 login:
 	uv run zenml login $(zenml_host)

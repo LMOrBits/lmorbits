@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   all-integrations:
@@ -6,6 +6,7 @@ tasks:
       - uv run zenml integration install --uv kubernetes -y
       - uv run zenml integration install --uv gcp -y
       - uv run zenml integration install --uv mlflow -y
+      - uv run zenml integration install --uv huggingface -y
 
   sky-instance-integrations:
     cmds:

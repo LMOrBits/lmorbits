@@ -8,21 +8,16 @@ client = Client()
 # use a large size to ensure we get all of them
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument(
-        "--pipeline_name", type=str, required=False, default="test_pipeline"
-    )
+    parser.add_argument("--pipeline_name", type=str, required=False, default="test_pipeline")
+    parser.add_argument("-y", "--yes", action="store_true", required=False, default=False)
     args = parser.parse_args()
-    pipelines_list = client.list_pipelines(
-        name="startswith:" + args.pipeline_name, size=100
-    )
+    pipelines_list = client.list_pipelines(name="startswith:" + args.pipeline_name, size=100)
 
     target_pipeline_ids = [p.id for p in pipelines_list.items]
 
     logger.info(f"Found {len(target_pipeline_ids)} pipelines to delete")
 
-    confirmation = input(
-        "Do you really want to delete these pipelines? (y/n): "
-    ).lower()
+    confirmation = "y" if args.yes else input("Do you really want to delete these pipelines? (y/n): ").lower()
 
     if confirmation == "y":
         logger.info(f"Deleting {len(target_pipeline_ids)} pipelines")
