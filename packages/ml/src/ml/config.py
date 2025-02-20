@@ -1,9 +1,17 @@
-from pathlib import Path
-from omegaconf import OmegaConf
-from configparser import ConfigParser
 import os
-from dotenv import load_dotenv
+from configparser import ConfigParser
+from pathlib import Path
 
+from dotenv import load_dotenv
+from omegaconf import OmegaConf
+
+
+def enable_multipart_upload():
+    os.environ["MLFLOW_ENABLE_PROXY_MULTIPART_UPLOAD"] = "true"
+    # For example, use a 50 MB threshold: if file size >= 50 MB, use multipart upload.
+    os.environ["MLFLOW_MULTIPART_UPLOAD_MINIMUM_FILE_SIZE"] = str(50 * 1024 * 1024)
+    # Set chunk size to 10 MB (adjust based on your network/storage performance).
+    os.environ["MLFLOW_MULTIPART_UPLOAD_CHUNK_SIZE"] = str(10 * 1024 * 1024)
 
 def config():
     config_path = Path(__file__).parents[2] / "configs" / "finetuning.yaml"

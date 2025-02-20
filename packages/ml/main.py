@@ -8,14 +8,7 @@ from ml.config import config
 from ml.data_module.lakefs import get_dataset
 from ml.experiment.mlflow.llamacpp import LlamaCppModel
 from ml.finetuning.unsloth import get_trainer_model
-
-
-def enable_multipart_upload():
-    os.environ["MLFLOW_ENABLE_PROXY_MULTIPART_UPLOAD"] = "true"
-    # For example, use a 50 MB threshold: if file size >= 50 MB, use multipart upload.
-    os.environ["MLFLOW_MULTIPART_UPLOAD_MINIMUM_FILE_SIZE"] = str(50 * 1024 * 1024)
-    # Set chunk size to 10 MB (adjust based on your network/storage performance).
-    os.environ["MLFLOW_MULTIPART_UPLOAD_CHUNK_SIZE"] = str(10 * 1024 * 1024)
+from ml.config import enable_multipart_upload
 
 
 def main():
