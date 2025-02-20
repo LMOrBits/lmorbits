@@ -1,5 +1,6 @@
 {
   "folders": [
+    {"name": "Docs", "path": "docs/how-to/development/APPLICATION"},
     {
       "name": "Application",
       "path": "packages/application"

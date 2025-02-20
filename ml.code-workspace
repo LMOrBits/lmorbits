@@ -1,5 +1,6 @@
 {
   "folders": [
+    {"name": "Docs", "path": "docs/how-to/development/ML"},
     {
       "name": "Data",
       "path": "packages/data"
@@ -13,37 +14,22 @@
       "path": "packages/orchestration"
     }
   ],
-  "settings": {
-    "python.terminal.activateEnvironment": true,
-    "jupyter.interactiveWindow.creationMode": "perFile",
-    "jupyter.kernels.filter": true,
-    
-    "python.analysis.typeCheckingMode": "basic",
-    "python.formatting.provider": "black",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.testing.pytestEnabled": true,
-    
-    "[toml]": {
-      "editor.formatOnSave": true,
-      "editor.defaultFormatter": "tamasfe.even-better-toml"
-    },
-    
-    "taskfile.statusbar": true,
-    "files.associations": {
-      "Taskfile.yml": "taskfile",
-      "Taskfile.yaml": "taskfile"
-    }
-  },
   "extensions": {
     "recommendations": [
+      "task.vscode-task",
       "ms-python.python",
       "ms-python.vscode-pylance",
+      "charliermarsh.ruff",
+      "matangover.mypy",
       "ms-toolsai.jupyter",
+      "ms-toolsai.jupyter-keymap",
+      "ms-toolsai.jupyter-renderers",
       "njpwerner.autodocstring",
       "tamasfe.even-better-toml",
-      "task.vscode-task"
+      "redhat.vscode-yaml",
+      "streetsidesoftware.code-spell-checker",
+      "eamodio.gitlens",
+      "mhutchie.git-graph"
     ]
   }
 }
