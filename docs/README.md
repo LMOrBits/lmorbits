@@ -1,5 +1,5 @@
 ---
-icon: home
+icon: house
 description: Welcome to our project documentation. Get started with our ML platform.
 ---
 

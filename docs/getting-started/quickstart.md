@@ -1,5 +1,5 @@
 ---
-icon: zap
+icon: rocket
 description: Get started with our platform in minutes
 ---
 
