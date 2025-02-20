@@ -5,7 +5,9 @@ structure:
   summary: SUMMARY.md
 
 redirects:
-  development/: development/code-standards.md
-  components/: components/data-pipeline.md
-  deployment/: deployment/deployment-guide.md
-  contributing/: contributing.md
+  core-concepts/: README.md
+  development-guide/: development/setup.md
+  package-development/: development/data/README.md
+  how-to/: guides/server-management.md
+  reference/: reference/api.md
+  contributing/: contributing/contributing.md
