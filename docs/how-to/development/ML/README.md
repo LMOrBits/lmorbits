@@ -108,8 +108,3 @@ registry = ModelRegistry()
 registry.register(model, version="1.0.0")
 ```
 
-## Additional Resources
-
-- [Model Templates](../reference/models/templates.md)
-- [Training Configuration](../reference/training/config.md)
-- [Deployment Options](../reference/deployment/options.md) 
