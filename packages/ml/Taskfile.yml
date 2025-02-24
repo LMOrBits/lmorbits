@@ -22,13 +22,18 @@ tasks:
   
   init-git-ssh:
     desc: "Initialize Git SSH configuration for GitHub access"
+    vars:
+      EMAIL: '{{default "parsa.miraghaie@gmail.com" .EMAIL}}'
+      NAME: '{{default "Parsa Miraghaie" .NAME}}'
     cmds:
-      - cmd: test -f ~/.ssh/id_ed25519 || ssh-keygen -t ed25519 -C "parsa.miraghaie@gmail.com" -f ~/.ssh/id_ed25519 -N ""
+      - cmd: test -f ~/.ssh/id_ed25519 || ssh-keygen -t ed25519 -C "{{.EMAIL}}" -f ~/.ssh/id_ed25519 -N ""
         ignore_error: true
       - cmd: eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519
         ignore_error: true
-      - git config --global user.email "parsa.miraghaie@gmail.com"
-      - git config --global user.name "Parsa Miraghaie"
+      - cmd: chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519 && chmod 644 ~/.ssh/id_ed25519.pub
+        ignore_error: true
+      - git config --global user.email "{{.EMAIL}}"
+      - git config --global user.name "{{.NAME}}"
       - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no"
       - cmd: cat ~/.ssh/id_ed25519.pub
         silent: true
