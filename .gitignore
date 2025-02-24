@@ -34,3 +34,5 @@ wheels/
 
 **/*.gguf
 **/mlruns
+**/unsloth_compiled_cache/**
+**/**checkpoint**/**

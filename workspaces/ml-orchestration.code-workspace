@@ -1,0 +1,35 @@
+{
+  "folders": [
+    {"name": "Docs", "path": "../docs/how-to/development/ML"},
+    {
+      "name": "Data",
+      "path": "../packages/data"
+    },
+    {
+      "name": "ML",
+      "path": "../packages/ml"
+    },
+    {
+      "name": "Orchestrator",
+      "path": "../packages/orchestration"
+    }
+  ],
+  "extensions": {
+    "recommendations": [
+      "task.vscode-task",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "charliermarsh.ruff",
+      "matangover.mypy",
+      "ms-toolsai.jupyter",
+      "ms-toolsai.jupyter-keymap",
+      "ms-toolsai.jupyter-renderers",
+      "njpwerner.autodocstring",
+      "tamasfe.even-better-toml",
+      "redhat.vscode-yaml",
+      "streetsidesoftware.code-spell-checker",
+      "eamodio.gitlens",
+      "mhutchie.git-graph"
+    ]
+  }
+}

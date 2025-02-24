@@ -2,7 +2,7 @@
   "folders": [
     {
       "name": "serve",
-      "path": "packages/serve"
+      "path": "../packages/serve"
     }
   ], "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder}/../../.venv/bin/python",

@@ -25,21 +25,17 @@ def main():
             split=model_config.dataset.lakefs.split,
             num_proc=num_proc,
         )
-        chat_mapping = model_config.dataset.lakefs.get("chat_mapping", None)
-        column_to_be_used = model_config.dataset.lakefs.get(
-            "column_to_be_used", "conversations"
-        )
     elif model_config.dataset.get("hf"):
         dataset = load_dataset(
             model_config.dataset.hf.name,
             split=model_config.dataset.hf.split,
             num_proc=num_proc,
         )
-        chat_mapping = model_config.dataset.hf.get("chat_mapping", None)
-        column_to_be_used = model_config.dataset.hf.get(
-            "column_to_be_used", "conversations"
-        )
 
+
+    column_to_be_used = model_config.dataset.get("column_to_be_used", None)
+    chat_template = model_config.chat_template
+    chat_mapping = model_config.dataset.get("chat_mapping", None)
     model_save_path = "saved_model"
     mlflow.set_experiment("qa_model_training")
     with mlflow.start_run() as run:
@@ -51,7 +47,7 @@ def main():
         mlflow.log_artifact(sample_file, artifact_path="dataset_samples")
 
         trainer_model, tokenizer = get_trainer_model(
-            chat_template=model_config.chat_template,
+            chat_template=chat_template,
             dataset=dataset,
             from_pretrained=model_config.from_pretrained,
             sft_configs=model_config.sft_configs,

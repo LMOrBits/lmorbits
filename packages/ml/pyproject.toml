@@ -11,8 +11,10 @@ dependencies = [
     "omegaconf>=2.3.0",
     "setuptools>=75.8.0",
     "go-task-bin>=3.41.0",
-    # "unsloth[cu121-torch240]",
+    "unsloth[cu121-torch240]",
     "data",
+    "loguru>=0.7.3",
+    "trl>=0.15.1",
 ]
 
 [project.scripts]
@@ -27,7 +29,7 @@ unsloth = { git = "https://github.com/unslothai/unsloth.git" }
 data = { path = "../data" }
 
 [dependency-groups]
-dev = ["ipykernel>=6.29.5"]
+dev = ["ipykernel>=6.29.5", "skypilot[gcp,kubernetes]>=0.8.0"]
 
 
 [tool.ruff]

@@ -1,9 +1,17 @@
 {
   "folders": [
+    {"name": "Docs", "path": "../docs/how-to/development/APPLICATION"},
+    {
+      "name": "Application",
+      "path": "../packages/application"
+    },
     {
       "name": "Orchestrator",
-      "path": "packages/orchestration"
-    }
+      "path": "../packages/orchestration"
+    },
+    {
+      "name": "serve",
+     "path": "../packages/serve"}
   ],
   "settings": {
     "python.defaultInterpreterPath": "$.venv/bin/python",

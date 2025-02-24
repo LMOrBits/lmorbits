@@ -11,7 +11,7 @@ tasks:
   zenml-init:
     cmds:
       - uv run zenml init
-      - uv run zenml login {{.ZENML_HOST}}
+      - uv run zenml login {{.zenml_host}}
 
   delete-test-pipelines:
     cmds:

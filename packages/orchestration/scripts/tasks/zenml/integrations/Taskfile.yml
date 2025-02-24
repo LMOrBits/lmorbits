@@ -1,6 +1,11 @@
 version: "3"
 
 tasks:
+  simple-integrations:
+    cmds:
+      - uv run zenml integration install --uv mlflow -y
+      - uv run zenml integration install --uv gcp -y
+
   all-integrations:
     cmds:
       - uv run zenml integration install --uv kubernetes -y

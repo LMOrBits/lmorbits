@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {"name": "Docs", "path": "../docs/how-to/development/DATA"},
+    {
+      "name": "Data",
+      "path": "../packages/data"
+    },
+    {
+      "name": "Orchestrator",
+      "path": "../packages/orchestration"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "$.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.venvPath": "$.venv",
+    "jupyter.interactiveWindow.creationMode": "perFile",
+    "jupyter.kernels.filter": true
+  }
+}

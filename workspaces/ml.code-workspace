@@ -1,18 +1,14 @@
 {
   "folders": [
-    {"name": "Docs", "path": "docs/how-to/development/ML"},
+    {"name": "Docs", "path": "../docs/how-to/development/ML"},
     {
       "name": "Data",
-      "path": "packages/data"
+      "path": "../packages/data"
     },
     {
       "name": "ML",
-      "path": "packages/ml"
+      "path": "../packages/ml"
     },
-    {
-      "name": "Orchestrator",
-      "path": "packages/orchestration"
-    }
   ],
   "extensions": {
     "recommendations": [
