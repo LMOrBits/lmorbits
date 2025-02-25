@@ -5,6 +5,14 @@ from transformers import TrainingArguments, DataCollatorForSeq2Seq
 from unsloth import is_bfloat16_supported
 from unsloth.chat_templates import train_on_responses_only
 from loguru import logger
+from pathlib import Path
+import os 
+
+def llama_cpp_build_path():
+    return Path(__file__).parents[3] 
+    
+def cd_llama_cpp():
+    os.chdir(llama_cpp_build_path())
 
 def get_trainer_model(
     chat_template,

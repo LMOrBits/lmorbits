@@ -31,6 +31,8 @@ unsloth-package  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7",]
 unsloth-package-dev  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7", "ipykernel>=6.29.5"]
 instance-package= [ "skypilot[gcp,kubernetes]>=0.8.0"]
 
+[project.optional-dependencies]
+unsloth-package = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7"]
 
 [tool.ruff]
 line-length = 88

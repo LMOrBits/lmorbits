@@ -27,7 +27,7 @@ peft_configs:
   gradient_accumulation_steps: 4
   warmup_steps: 5
   max_steps: 1
-  learning_rate: 2e-4
+  learning_rate: 0.0001
   logging_steps: 1
   optim: "adamw_8bit"
   weight_decay: 0.01
@@ -36,7 +36,7 @@ peft_configs:
   output_dir: "outputs"
 
 
-chat_template: "llama-3"
+chat_template: "llama-3.1"
 dataset:
   column_to_be_used: "conversations"
   chat_mapping:

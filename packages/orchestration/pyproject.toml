@@ -38,7 +38,7 @@ all-package = ["application", "data", "ml"]
 all-package-dev = [
     "application",
     "data",
-    "ml",
+    "ml[unsloth-package]",
     "datamodel-code-generator",
     "ipykernel",
     "orchestration",
