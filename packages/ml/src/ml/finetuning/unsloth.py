@@ -4,6 +4,7 @@ from trl import SFTTrainer
 from transformers import TrainingArguments, DataCollatorForSeq2Seq
 from unsloth import is_bfloat16_supported
 from unsloth.chat_templates import train_on_responses_only
+from loguru import logger
 
 def get_trainer_model(
     chat_template,
@@ -26,11 +27,17 @@ def get_trainer_model(
         **peft_adapters,
     )
 
-    tokenizer = get_chat_template(
-        tokenizer,
-        chat_template=chat_template,
-        mapping=mapping,
-    )
+    if mapping:
+        tokenizer = get_chat_template(
+            tokenizer,
+            chat_template=chat_template,
+            mapping=mapping,
+        )
+    else:
+        tokenizer = get_chat_template(
+            tokenizer,
+            chat_template=chat_template,
+        )
 
     def formatting_prompts_func(examples):
         convos = examples[column_to_be_used]
@@ -43,14 +50,14 @@ def get_trainer_model(
         return {
             "text": texts,
         }
-
+    logger.info(f"dataset: \n { dataset.select(range(1)).to_pandas().iloc[0][column_to_be_used] }")
+    
     new_dataset = dataset.map(
         formatting_prompts_func,
         batched=True,
         remove_columns=dataset.column_names  # Remove original columns
     )
-
-    print(new_dataset.select(range(3)).to_pandas())
+    logger.info(f"new_dataset: \n { new_dataset.select(range(1)).to_pandas().iloc[0]['text'] }")
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
@@ -63,10 +70,17 @@ def get_trainer_model(
             bf16=is_bfloat16_supported(),
         ),
     )
+    #TODO: make this more dynamic  
+    begin_token = tokenizer.bos_token
+    end_token = tokenizer.eos_token
     
+    instruction_part = tokenizer.apply_chat_template([{"role":"user"}, ], tokenize=False)
+    instruction_part = instruction_part[len(begin_token):-len(end_token)].strip()
+    response_part = tokenizer.apply_chat_template([{"role":"assistant"}, ], tokenize=False)
+    response_part = response_part[len(begin_token):-len(end_token)].strip()
     trainer = train_on_responses_only(
         trainer,
-        instruction_part=tok
-        response_part
+        instruction_part=instruction_part,
+        response_part=response_part
     )
     return trainer, tokenizer

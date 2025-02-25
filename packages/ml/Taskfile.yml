@@ -8,12 +8,12 @@ tasks:
   gpu-instance-up:
     desc: "Launch the GPU instance "
     cmds:
-      - uv sync --only-group dev 
+      - uv sync --only-group instance-package
       - uv run sky launch ./skypilot.yaml --name gpu-instance-ml
   gpu-instance-down:
     desc: "Shut down the GPU instance "
     cmds:
-      - uv sync --only-group dev
+      - uv sync --only-group instance-package
       - uv run sky down --all -y
   ruff-format:
     desc: "Format the code using Ruff"

@@ -37,6 +37,7 @@ def main():
     chat_template = model_config.chat_template
     chat_mapping = model_config.dataset.get("chat_mapping", None)
     model_save_path = "saved_model"
+
     mlflow.set_experiment("qa_model_training")
     with mlflow.start_run() as run:
         mlflow.log_params(dict(model_config))
@@ -67,34 +68,39 @@ def main():
             mlflow.log_metric("final_train_loss", final_loss)
 
         logger.info(f"starting to save model at {model_save_path}")
+        specific_directory = "/path/to/specific/directory"
+        os.makedirs(specific_directory, exist_ok=True)
+        os.chdir(specific_directory)
+        
         model.save_pretrained_gguf(
             model_save_path,
             tokenizer,
             quantization_method=model_config.quantization_method,
+            max_shard_size="500MB"
         )
         logger.info(f"Model saved at {model_save_path}")
-        old_model_path = os.path.join(
-            model_save_path, f"unsloth.{model_config.quantization_method.upper()}.gguf"
-        )
-        new_model_path = os.path.join(model_save_path, "model.gguf")  # New name
-        os.rename(old_model_path, new_model_path)
+        # old_model_path = os.path.join(
+        #     model_save_path, f"unsloth.{model_config.quantization_method.upper()}.gguf"
+        # )
+        # new_model_path = os.path.join(model_save_path, "model.gguf")  # New name
+        # os.rename(old_model_path, new_model_path)
 
-        mlflow.pyfunc.log_model(
-            artifact_path="model_path",
-            python_model=LlamaCppModel(),
-            artifacts={"model_path": f"{model_save_path}/model.gguf"},
-            pip_requirements=["mlflow==2.4.0", "llama-cpp-python", "pandas"],
-        )
-        run_id = run.info.run_id
-        model_uri = f"runs:/{run_id}/model"
-        logger.info(f"Model logged at URI: {model_uri}")
-        registered_model_name = "qa_model"
-        model_details = mlflow.register_model(
-            model_uri=model_uri, name=registered_model_name
-        )
-        logger.info(
-            f"Registered model '{model_details.name}' with version {model_details.version}"
-        )
+        # mlflow.pyfunc.log_model(
+        #     artifact_path="model_path",
+        #     python_model=LlamaCppModel(),
+        #     artifacts={"model_path": f"{model_save_path}/model.gguf"},
+        #     pip_requirements=["mlflow==2.4.0", "llama-cpp-python", "pandas"],
+        # )
+        # run_id = run.info.run_id
+        # model_uri = f"runs:/{run_id}/model"
+        # logger.info(f"Model logged at URI: {model_uri}")
+        # registered_model_name = "qa_model"
+        # model_details = mlflow.register_model(
+        #     model_uri=model_uri, name=registered_model_name
+        # )
+        # logger.info(
+        #     f"Registered model '{model_details.name}' with version {model_details.version}"
+        # )
 
 
 if __name__ == "__main__":

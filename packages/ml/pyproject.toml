@@ -6,15 +6,13 @@ readme = "README.md"
 requires-python = ">=3.10,<=3.13"
 dependencies = [
     "google-cloud-storage>=2.14.0",
-    "llama-cpp-python>=0.3.7",
     "mlflow>=2.20.1",
     "omegaconf>=2.3.0",
     "setuptools>=75.8.0",
     "go-task-bin>=3.41.0",
-    "unsloth[cu121-torch240]",
     "data",
     "loguru>=0.7.3",
-    "trl>=0.15.1",
+    
 ]
 
 [project.scripts]
@@ -29,7 +27,9 @@ unsloth = { git = "https://github.com/unslothai/unsloth.git" }
 data = { path = "../data" }
 
 [dependency-groups]
-dev = ["ipykernel>=6.29.5", "skypilot[gcp,kubernetes]>=0.8.0"]
+unsloth-package  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7",]
+unsloth-package-dev  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7", "ipykernel>=6.29.5"]
+instance-package= [ "skypilot[gcp,kubernetes]>=0.8.0"]
 
 
 [tool.ruff]
