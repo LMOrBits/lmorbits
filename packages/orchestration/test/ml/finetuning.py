@@ -12,6 +12,7 @@ from ml.data_module.lakefs import get_dataset_from_lakefs, Dataset
 from ml.experiment.mlflow.llamacpp import LlamaCppModel
 
 from ml.finetuning.unsloth import get_trainer_model
+from ml.finetuning.unsloth import cd_llama_cpp
 from zenml import log_metadata, pipeline, step
 from zenml.integrations.mlflow.flavors.mlflow_experiment_tracker_flavor import MLFlowExperimentTrackerSettings
 import transformers
@@ -57,6 +58,7 @@ def test_fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotat
 
 @step(experiment_tracker="mlflow_tracker",
       settings={"experiment_tracker": mlflow_settings})
+# @step
 def test_fineruning_with_unsloth(
     hf_dataset: Dataset,
     from_pretrained: Dict[str, Any],
@@ -84,6 +86,11 @@ def test_fineruning_with_unsloth(
     with open(sample_file, "w") as f:
         f.write(sample_examples)
     mlflow.log_artifact(sample_file, artifact_path="dataset_samples")
+    logger.warning(f"chat_mapping: {chat_mapping=}")
+    logger.warning(f"chat_template: {chat_template=}")
+    logger.warning(f"metadata: {metadata=}")
+
+
 
     trainer_model, tokenizer = get_trainer_model(
         chat_template=chat_template,
@@ -94,6 +101,7 @@ def test_fineruning_with_unsloth(
         peft_adapters=peft_adapters,
         mapping=chat_mapping,
         column_to_be_used=column_to_be_used,
+        
     )
     trainer_model.train()
     model = trainer_model.model
@@ -107,29 +115,30 @@ def test_fineruning_with_unsloth(
         transformers_model=components,
         artifact_path="model"
     )
-    # logger.info(f"starting to save model at {model_save_path}")
-    # model.save_pretrained_gguf(
-    #     model_save_path,
-    #     tokenizer,
-    #     quantization_method=quantization_method,
-    # )
-    # logger.info(f"Model saved at {model_save_path}")
-    # old_model_path = os.path.join(model_save_path, f"unsloth.{model_config.quantization_method.upper()}.gguf")
-    # new_model_path = os.path.join(model_save_path, "model.gguf")  # New name
-    # os.rename(old_model_path, new_model_path)
+    cd_llama_cpp()
+    logger.info(f"starting to save model at {model_save_path}")
+    model.save_pretrained_gguf(
+        model_save_path,
+        tokenizer,
+        quantization_method=quantization_method,
+    )
+    logger.info(f"Model saved at {model_save_path}")
+    old_model_path = os.path.join(model_save_path, f"unsloth.{quantization_method.upper()}.gguf")
+    new_model_path = os.path.join(model_save_path, "model.gguf")  # New name
+    os.rename(old_model_path, new_model_path)
 
-    # mlflow.pyfunc.log_model(
-    #     artifact_path="model_path",
-    #     python_model=LlamaCppModel(),
-    #     artifacts={"model_path": f"{model_save_path}/model.gguf"},
-    #     pip_requirements=["mlflow==2.4.0", "llama-cpp-python", "pandas"],
-    # )
-    # run_id = mlflow.active_run().info.run_id
-    # model_uri = f"runs:/{run_id}/model"
-    # logger.info(f"Model logged at URI: {model_uri}")
-    # registered_model_name = "qa_model"
-    # model_details = mlflow.register_model(model_uri=model_uri, name=registered_model_name)
-    # logger.info(f"Registered model '{model_details.name}' with version {model_details.version}")
+    mlflow.pyfunc.log_model(
+        artifact_path="model_path",
+        python_model=LlamaCppModel(),
+        artifacts={"model_path": f"{model_save_path}/model.gguf"},
+        pip_requirements=["mlflow==2.4.0", "llama-cpp-python", "pandas"],
+    )
+    run_id = mlflow.active_run().info.run_id
+    model_uri = f"runs:/{run_id}/model"
+    logger.info(f"Model logged at URI: {model_uri}")
+    registered_model_name = "qa_model"
+    model_details = mlflow.register_model(model_uri=model_uri, name=registered_model_name)
+    logger.info(f"Registered model '{model_details.name}' with version {model_details.version}")
 
 
 
