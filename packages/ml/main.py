@@ -68,10 +68,6 @@ def main():
             mlflow.log_metric("final_train_loss", final_loss)
 
         logger.info(f"starting to save model at {model_save_path}")
-        specific_directory = "/path/to/specific/directory"
-        os.makedirs(specific_directory, exist_ok=True)
-        os.chdir(specific_directory)
-        
         model.save_pretrained_gguf(
             model_save_path,
             tokenizer,
