@@ -21,18 +21,15 @@ you can explore each of these core repositories one by one, as it contains the e
    - [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Parsa-Mir/slmops_infra)
    - This repository lays the groundwork for our infrastructure.
    - {% hint style="success" %} Accessible within the lmorbits repository. {% endhint %}
-  
 
 3. **Serve**
    - [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Parsa-Mir/serve)
-   - This repository is where the effort to make the serving model based on the experiment tracker easier specially on the user side. 
+   - This repository is where the effort to make the serving model based on the experiment tracker easier specially on the user side.
    - {% hint style="success" %} Accessible within the lmorbits repository. {% endhint %}
 
 4. **Application**
    - [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Parsa-Mir/slmops-app)
    - {% hint style="warning" %} Not Accessible within the lmorbits repository. {% endhint %}
-
-
 
 ### IaC
 
