@@ -1,11 +1,12 @@
 ---
 icon: rocket
-description: Get started with our platform in minutes
+description: Get started with LMOrbits 
 ---
+# Introduction
+LMOrbits is a Package for building and deploying Small language models. This document provides a quick start guide to help you get familiar with it quickly.
 
 # Quick Start Guide
 
-This guide will help you get up and running with our platform quickly.
 
 ## Prerequisites
 
