@@ -14,7 +14,7 @@
   * [LMOrbits](how-to/development/lmorbits/README.md)
     * [App](how-to/development/lmorbits/APP/README.md)
       * [Phython](how-to/development/lmorbits/APP/README.md)
-        * [Tools](how-to/development/lmorbits/APP/TOOLS/README.md)
+        * [Tools](how-to/development/lmorbits/APP/Python/TOOLS/README.md)
         * [VectorDB](how-to/development/lmorbits/APP/Python/VECTORDB/README.md)
         * [Workflows](how-to/development/lmorbits/APP/Python/WORKFLOWS/README.md)
       * [Typescript](how-to/development/lmorbits/APP/Python/README.md)
