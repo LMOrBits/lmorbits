@@ -13,11 +13,11 @@
 * [Development](how-to/development/README.md)
   * [LMOrbits](how-to/development/lmorbits/README.md)
     * [App](how-to/development/lmorbits/APP/README.md)
-      * [Python]
+      * [Python](how-to/development/lmorbits/app/python/README.md)
         * [Tools](how-to/development/lmorbits/APP/Python/TOOLS/README.md)
         * [VectorDB](how-to/development/lmorbits/APP/Python/VECTORDB/README.md)
         * [Workflows](how-to/development/lmorbits/APP/Python/WORKFLOWS/README.md)
-      * [Typescript]
+      * [Typescript](how-to/development/lmorbits/app/typescript/README.md)
         * [Tools](how-to/development/lmorbits/APP/TS/TOOLS/README.md)
         * [VectorDB](how-to/development/lmorbits/APP/TS/VECTORDB/README.md)
         * [Workflows](how-to/development/lmorbits/APP/TS/WORKFLOWS/README.md)
