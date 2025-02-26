@@ -47,5 +47,4 @@ LMOrbits focuses on the dynamic management and operation of Small Language Model
 ## Need Help?
 
 - 📝 Open an issue in our GitHub repository
-- 💬 Join our community Discord
-- 📧 Contact support@example.com 
+- 📧 Contact support@lmorbits.com 
