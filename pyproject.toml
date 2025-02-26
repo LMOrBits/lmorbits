@@ -10,14 +10,12 @@ dependencies = [
   "skypilot[gcp]>=0.8.0",
 ]
 
-
-
 [tool.uv.sources]
 ml = { path = "packages/ml" }
-application = { path = "packages/application"}
+pyapp = { path = "packages/app/pyapp"}
 data = { path = "packages/data"}
 orchestration = { path = "packages/orchestration" }
-serve = { path = "packages/serve" }
+serve = { path = "packages/app/serve" }
 
 [dependency-groups]
 serve-package = [
@@ -26,13 +24,6 @@ serve-package = [
 
 orchestration-package = [
     "orchestration",
-]
-
-not-ml-dev = [
-    "application",
-    "data",
-    "orchestration",
-    "ipykernel>=6.29.5",
 ]
 
 data-nl-package = [
@@ -44,11 +35,11 @@ ml-package = [
 ]
 
 app-package = [
-    "application",
+    "pyapp",
 ]
 
 all-dev = [
-    "application",
+    "pyapp",
     "data",
     "ipykernel>=6.29.5",
     "ml",
@@ -56,7 +47,7 @@ all-dev = [
 ]
 
 all-package = [
-    "application",
+    "pyapp",
     "data",
     "ml",
     "orchestration",
