@@ -1,5 +1,5 @@
 ---
-icon: code
+icon: display-arrow-down
 description: Learn how to develop applications with our ML platform
 ---
 

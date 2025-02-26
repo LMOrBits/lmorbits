@@ -11,8 +11,6 @@
 ## 📚 How To
 
 * [Development](how-to/development/README.md)
-  * [Application](how-to/development/application/README.md)
-  * [Infrastructure as Code](how-to/development/iac/README.md)
   * [LMOrbits](how-to/development/lmorbits/README.md)
     * [App](how-to/development/lmorbits/APP/README.md)
       * [Tools](how-to/development/lmorbits/APP/TOOLS/README.md)
@@ -22,3 +20,5 @@
     * [Data](how-to/development/lmorbits/DATA/README.md)
     * [Machine Learning](how-to/development/lmorbits/ML/README.md)
     * [Orchestration](how-to/development/lmorbits/ORCHESTRATION/README.md)
+  * [Infrastructure as Code](how-to/development/iac/README.md)
+  * [Application](how-to/development/application/README.md)

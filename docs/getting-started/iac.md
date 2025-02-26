@@ -1,5 +1,5 @@
 ---
-icon: code
+icon: cloud
 description: Learn how to develop applications with our ML platform
 ---
 

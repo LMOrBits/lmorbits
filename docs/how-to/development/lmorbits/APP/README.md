@@ -1,5 +1,5 @@
 ---
-icon: code
+icon: arrow-progress
 description: Learn how to develop applications with our ML platform
 ---
 

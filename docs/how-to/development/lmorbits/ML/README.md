@@ -1,8 +1,9 @@
 ---
-icon: robot
+icon: person-chalkboard
 description: Guide for machine learning development
 ---
-# ML Package
+
+# Machine Learning
 
 The ML package is responsible for all machine learning operations in our project, including model training, evaluation, and experimentation.
 
@@ -25,4 +26,3 @@ ml/
 ```bash
 pip install -e .
 ```
-

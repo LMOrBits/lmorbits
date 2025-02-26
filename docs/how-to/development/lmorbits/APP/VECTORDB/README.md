@@ -1,4 +1,6 @@
 ---
-icon: code
-
+icon: database
 ---
+
+# VectorDB
+

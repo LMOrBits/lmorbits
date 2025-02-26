@@ -1,5 +1,5 @@
 ---
-icon: database
+icon: binary
 description: Guide for data processing and management
 ---
 

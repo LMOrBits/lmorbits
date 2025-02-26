@@ -12,13 +12,15 @@ To kick off your journey with our project, let's break it down into three exciti
 
 you can explore each of these core repositories one by one, as it contains the essential packages that power the entire logic of our project. Get ready to discover the building blocks of LMOrbits and how they come together to create a seamless experience!
 
-1. **Lmorbits**
-   * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/lmorbits)
-   * This repository manages all the logic for our operations.
+1.  **LMOrbits**
+
+    * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/lmorbits)
+    * This repository manages all the logic for our operations.
+
+
 2. **Infrastructure as Code (IaC)**
    * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/slmops_infra)
-   * This repository lays the groundwork for our infrastructure.\
-
+   * This repository lays the groundwork for our infrastructure.
 
 {% hint style="success" %}
 Accessible within the lmorbits repository.
@@ -26,8 +28,7 @@ Accessible within the lmorbits repository.
 
 3. **Serve**
    * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/serve)
-   * This repository is where the effort to make the serving model based on the experiment tracker easier specially on the user side.\
-
+   * This repository is where the effort to make the serving model based on the experiment tracker easier specially on the user side.
 
 {% hint style="success" %}
 Accessible within the lmorbits repository.
@@ -35,8 +36,7 @@ Accessible within the lmorbits repository.
 
 4. **Application**
    * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/slmops-app)
-   * This repository showcases a full stack application with LMOrbits integration.\
-
+   * This repository showcases a full stack application with LMOrbits integration.
 
 {% hint style="warning" %}
 Not accessible within the LMOrbits repository.
