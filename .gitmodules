@@ -1,3 +1,7 @@
 [submodule "infrastructure"]
 	path = infrastructure
 	url = https://github.com/Parsa-Mir/slmops_infra
+[submodule "packages/application/serve"]
+	path = packages/application/serve
+	url = https://github.com/Parsa-Mir/serve
+	branch = master
