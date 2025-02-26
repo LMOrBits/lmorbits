@@ -1,13 +1,15 @@
-# Documentation
+# Table of contents
 
 ## 🚀 Getting Started
-* [Quick Start Guide](getting-started/quickstart.md)
+
+* [Quick Start Guide](README.md)
   * [Introduction](introduction/README.md)
-  * [app](getting-started/app.md)
-  * [Infrastructure as Code](getting-started/iac.md)
   * [LMOrbits](getting-started/lmorbits.md)
+  * [Infrastructure as Code](getting-started/iac.md)
+  * [app](getting-started/app.md)
 
 ## 📚 How To
+
 * [Development](how-to/development/README.md)
   * [Application](how-to/development/application/README.md)
   * [Infrastructure as Code](how-to/development/iac/README.md)
@@ -16,7 +18,7 @@
       * [Tools](how-to/development/lmorbits/APP/TOOLS/README.md)
       * [VectorDB](how-to/development/lmorbits/APP/VECTORDB/README.md)
       * [Workflows](how-to/development/lmorbits/APP/WORKFLOWS/README.md)
-      * [Serve](how-to/development/lmorbits/SERVE/README.md)
+      * [Serve](how-to/development/lmorbits/app/serve.md)
     * [Data](how-to/development/lmorbits/DATA/README.md)
     * [Machine Learning](how-to/development/lmorbits/ML/README.md)
     * [Orchestration](how-to/development/lmorbits/ORCHESTRATION/README.md)
