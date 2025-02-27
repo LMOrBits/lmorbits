@@ -5,7 +5,7 @@
 * [Quick Start Guide](README.md)
   * [Introduction](introduction/README.md)
   * [LMOrbits](getting-started/lmorbits.md)
-  * [Infrastructure as Code](getting-started/iac.md)
+  * [Infrastructure](getting-started/infrastructure.md)
   * [app](getting-started/app.md)
 
 ## 📚 How To
@@ -25,5 +25,7 @@
     * [Data](how-to/development/lmorbits/DATA/README.md)
     * [Machine Learning](how-to/development/lmorbits/ML/README.md)
     * [Orchestration](how-to/development/lmorbits/ORCHESTRATION/README.md)
-  * [Infrastructure as Code](how-to/development/iac/README.md)
+  * [Infrastructure](how-to/development/infra/README.md)
+    * [local(on-prem)](how-to/development/infra/local/README.md)
+    * [cloud](how-to/development/infra/cloud/README.md)
   * [Application](how-to/development/application/README.md)

@@ -3,7 +3,7 @@ icon: cloud
 description: Learn how to develop applications with our ML platform
 ---
 
-# Infrastructure as Code
+# Infrastructure
 
 ## Application Development
 
@@ -11,9 +11,9 @@ Welcome to the application development documentation! Here you'll find comprehen
 
 ### Development Areas
 
-* [Tools](../how-to/development/app/TOOLS/)
-* [Workflows](../how-to/development/app/WORKFLOWS/)
-* [VectorDB](../how-to/development/app/VECTORDB/)
+* [Tools](../lmorbits/APP/TOOLS/)
+* [Workflows](../lmorbits/APP/WORKFLOWS/)
+* [VectorDB](../lmorbits/APP/VECTORDB/)
 
 ## Application Package
 
