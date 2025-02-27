@@ -11,7 +11,8 @@ To set up the cloud infrastructure, we will be using Terraform and Helm. Before 
 4. [Helm](https://helm.sh/docs/intro/install/) - Package manager for Kubernetes.
 5. [Terraform](https://developer.hashicorp.com/terraform/downloads) - Infrastructure as Code tool.
 6. [Civo CLI](https://www.civo.com/docs/overview/civo-cli) - Command-line tool for managing Civo cloud resources.
-
+7. [Docker](https://docs.docker.com/get-docker/) - Container runtime (minimum version 20.10.5)
+8. [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Windows/Mac)
 
 Once you have these tools ready, we can proceed with the implementation. Our cloud infrastructure will primarily rely on the artifact registry, storage, and GPU access. These components are crucial for managing and optimizing our cloud resources effectively.
 
