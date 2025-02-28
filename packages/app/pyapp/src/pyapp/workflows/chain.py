@@ -1,2 +1,0 @@
-def pychain():
-  return "pychain"
