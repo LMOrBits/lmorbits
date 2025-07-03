@@ -1,8 +1,16 @@
-version: '3'
+version: "3"
+
+dotenv: [".env"]
 
 includes:
   ml:
     taskfile: scripts/tasks/Taskfile.yml
+  mlflow-embed:
+    dir: src/ml/models/embeddings/mlflow_embed
+    taskfile: src/ml/models/embeddings/mlflow_embed/Taskfile.yml
+  mlflow-hugging-face:
+    dir: src/ml/experiment/hugging_face
+    taskfile: src/ml/experiment/hugging_face/Taskfile.yml
 
 tasks:
   gpu-instance-up:
@@ -19,7 +27,7 @@ tasks:
     desc: "Format the code using Ruff"
     cmds:
       - uvx ruff format
-  
+
   init-git-ssh:
     desc: "Initialize Git SSH configuration for GitHub access"
     vars:

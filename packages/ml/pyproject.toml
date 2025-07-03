@@ -25,6 +25,7 @@ build-backend = "hatchling.build"
 [tool.uv.sources]
 unsloth = { git = "https://github.com/unslothai/unsloth.git" }
 data = { path = "../data" }
+mlflow-embed = { path = "./src/ml/models/embeddings/mlflow_embed" }
 
 [dependency-groups]
 unsloth-package  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7",]
@@ -33,6 +34,8 @@ instance-package= [ "skypilot[gcp,kubernetes]>=0.8.0"]
 
 [project.optional-dependencies]
 unsloth-package = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7"]
+mlflow-embed-package = ["mlflow-embed"]
+
 
 [tool.ruff]
 line-length = 88

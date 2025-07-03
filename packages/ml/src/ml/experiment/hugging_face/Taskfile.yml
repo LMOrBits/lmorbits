@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  pull-hf-push-mlflow:
+    vars:
+      MODEL_NAME: '{{.MODEL_NAME | default "aanviko/SmolLM-135M-Q4_K_M-GGUF"}}'
+      MODEL_REGISTRY_NAME: '{{.MODEL_REGISTRY_NAME | default "rag_model"}}'
+      MODEL_NAME_PATH: '{{.MODEL_NAME_PATH | default ""}}'
+    cmds:
+      - echo $MLFLOW_TRACKING_URI
+      - uv run mlflow_run.py --model_name {{.MODEL_NAME}} --model_registry_name {{.MODEL_REGISTRY_NAME}} --model_name_path {{.MODEL_NAME_PATH}}

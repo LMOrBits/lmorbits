@@ -1,0 +1,21 @@
+version: "3"
+vars:
+  model_name: rag_embeddings
+
+tasks:
+  push:
+    cmds:
+      - echo $MLFLOW_TRACKING_URI
+      - rm -rf serve/.venv
+      - uv run mlflow_run.py
+
+  download:
+    dir: tests
+    cmds:
+      - uv run mlflow_download.py
+
+  serve:
+    dir: tests/{{.model_name}}/serve
+    cmds:
+      - uv sync
+      - uv run task serve

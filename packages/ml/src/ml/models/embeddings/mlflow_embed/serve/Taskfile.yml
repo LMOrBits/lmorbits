@@ -1,0 +1,36 @@
+version: "3"
+vars:
+  image: embedding-api
+  params_file: params.yaml
+
+tasks:
+  serve:
+    desc: Serve the model
+    cmds:
+      - uv sync
+      - uv run serve.py
+
+  build:
+    desc: Build the Docker image for MLflow project
+    cmds:
+      - docker build -t {{.image}} -f Dockerfile .
+
+  run:
+    desc: Run the MLflow project with parameters from  yamlfile
+    vars:
+      CONTAINER_NAME: '{{.CONTAINER_NAME | default "EmbeddingAPI"}}'
+    cmds:
+      - task: build
+      - docker run --name {{.CONTAINER_NAME}} -v $(pwd)/{{.params_file}}:/app/{{.params_file}} -e PARAMS_FILE=/app/{{.params_file}} -p 1111:1111 {{.image}}
+
+  clean:
+    desc: Clean up Docker images
+    deps: [check-docker]
+    cmds:
+      - docker rmi {{.mlflow_image}} || true
+      - docker rmi {{.mlflow_image}}-$(git rev-parse --short HEAD) || true
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
