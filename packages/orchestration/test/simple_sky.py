@@ -10,7 +10,7 @@ from pathlib import Path
 @step
 def test_sky_simple(sky_config: Dict[str, Any]):
     log_metadata(metadata={"sky_config": prettify_task_config(sky_config)})
-    # zenml_orchestration_run_skypilot_task(task_config=sky_config)
+    zenml_orchestration_run_skypilot_task(task_config=sky_config)
 
 
 @pipeline

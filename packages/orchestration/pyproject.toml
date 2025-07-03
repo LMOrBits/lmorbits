@@ -20,7 +20,7 @@ dependencies = [
 skypilot-gcp = ["skypilot[gcp]>=0.8.0"]
 [tool.uv.sources]
 ml = { path = "../ml", editable = true }
-application = { path = "../application", editable = true }
+pyapp = { path = "../app/pyapp", editable = true }
 data = { path = "../data", editable = true }
 orchestration = { path = "../orchestration", editable = true }
 serve = { path = "../serve", editable = true }
@@ -30,13 +30,14 @@ data-package = ["data"]
 
 ml-package = ["ml"]
 
-app-package = ["application"]
+app-package = ["pyapp"]
 
 ml-data-package = ["ml", "data"]
 
-all-package = ["application", "data", "ml"]
+all-package = ["pyapp", "data", "ml"]
+all-package-sky = ["pyapp", "data", "ml", "skypilot[gcp]>=0.8.0"]
 all-package-dev = [
-    "application",
+    "pyapp",
     "data",
     "ml[unsloth-package]",
     "datamodel-code-generator",
