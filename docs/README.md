@@ -43,11 +43,12 @@ Depending on your use case and level of maturity you can choose to use the follo
    - [app](https://github.com/LMOrbits/app)
    - [data](https://github.com/LMOrbits/data)
    - [ml](https://github.com/LMOrbits/ml)
+   - [lmorbits](https://github.com/LMOrbits/lmorbits)
    - [serve](https://github.com/LMOrbits/serve)
 
 5. utilizing the app project and ci/cd to build a full pipeline for building and deploying a model.
 
-- not implemented yet.
+   - not implemented yet.
 
 ### Prerequisites
 
