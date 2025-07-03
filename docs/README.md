@@ -7,78 +7,48 @@ description: Get started with LMOrbits
 
 ## Introduction
 
-LMOrbits is a Package for building and deploying Small language models. This document provides a quick start guide to help you get familiar with it quickly.
+LMOrbits is a [github organization](https://github.com/LMOrbits) for building and deploying small language models. It is a collection of packages for building and deploying small language models. It is designed to be a simple and easy to use platform for building and deploying small language models. it is based on the thesis of [Parsa Mir](https://github.com/Parsa-Mir). as you can see from the picture below it consisit of 5 main parts:
 
-## Quick Start Guide
+- [app](https://github.com/LMOrbits/app): this is the app package that is responsible for creating app stacks.
+- [data](https://github.com/LMOrbits/data): this is the data package that supports the data component of the slmops.
+- [ml](https://github.com/LMOrbits/ml): this is the ml package that supports the ml component of the slmops.
+- [orchestration](https://github.com/LMOrbits/orchestration): this is the orchestration package that supports the orchestration component of the slmops.
+- [serve](https://github.com/LMOrbits/serve): this is the serve package that supports the serve component of the slmops.
+- [infra](https://github.com/LMOrbits/slmops_infra): this is the infra package that supports the infra component of the slmops.
+
+![LMOrbits](lmorbits.png)
+
+## Maturity Levels
+
+Depending on your use case and level of maturity you can choose to use the following options:
+
+1. starting from simple app stack to build a simple app and application on top of it with openly available llm and embedding models.
+
+   - [app](https://github.com/LMOrbits/app)
+
+2. utilizing the data package to improve the performance of the app stack by using the data component of the slmops. utilizing the Rag system with the capabilities of versioing those to improve the performance of the app stack.
+
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
+
+3. focusing much more on the app stack by scaling the app stacks from one to several app stack and bouding all with test data and setting different types such as intemidiate app and red team apps that helps you to synthesis test data and evaluation apps for validating the app stack.
+
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
+
+4. utilizing the ml package to train a model on a specific task and then using the serve package to serve the model.
+
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [ml](https://github.com/LMOrbits/ml)
+   - [serve](https://github.com/LMOrbits/serve)
+
+5. utilizing the app project and ci/cd to build a full pipeline for building and deploying a model.
+
+- not implemented yet.
 
 ### Prerequisites
 
-Make sure you have:
-
-* Completed the [installation](getting-started/installation.md)
-* Access to required credentials
-* Basic understanding of Python
-
-### First Steps
-
-1.  **Configure Your Environment**
-
-    ```sh
-    # Set up environment variables
-    export API_KEY="your-api-key"
-    export MODEL_PATH="/path/to/models"
-    ```
-2.  **Run Your First Pipeline**
-
-    ```python
-    from ml.pipeline import Pipeline
-
-    # Initialize pipeline
-    pipeline = Pipeline()
-
-    # Run basic workflow
-    pipeline.run("example_workflow")
-    ```
-3.  **Check the Results**
-
-    ```python
-    # View pipeline outputs
-    pipeline.get_results()
-    ```
-
-### Common Tasks
-
-#### Training a Model
-
-```python
-from ml.training import Trainer
-
-trainer = Trainer()
-trainer.train(data_path="data/training.csv")
-```
-
-#### Making Predictions
-
-```python
-from ml.predict import Predictor
-
-predictor = Predictor(model_path="models/latest")
-predictions = predictor.predict(data)
-```
-
-#### Using the API
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:8000/predict",
-    json={"data": your_data}
-)
-```
-
-### Next Steps
-
-* Explore [ML Development](how-to/development/ml.md)
-* Learn about [Data Processing](how-to/development/data.md)
-* Check [API Development](how-to/development/api.md)
+...
