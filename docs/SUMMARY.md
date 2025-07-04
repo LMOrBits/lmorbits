@@ -2,7 +2,7 @@
 
 ## 🚀 Getting Started
 
-- [Quick Start Guide](README.md)
+- [Quick Guide](README.md)
   - [Introduction](introduction/README.md)
   - [LMOrbits](getting-started/lmorbits.md)
   - [Infrastructure](getting-started/infrastructure.md)
@@ -11,7 +11,6 @@
   - [ml](getting-started/ml.md)
   - [orchestration](getting-started/orchestration.md)
   - [serve](getting-started/serve.md)
-  - [infra](getting-started/infra.md)
 
 ## 📚 How To
 

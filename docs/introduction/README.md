@@ -4,57 +4,52 @@ icon: house
 
 # Introduction
 
-Welcome to LMOrbits! We are thrilled to introduce you to this amazing package designed for operating the small language models. Here, you'll find a clear structure to help you get started, along with detailed information about the project and its components. We can't wait for you to explore everything we have to offer and embark on your journey into the fascinating world of language models!
+LMOrbits is a [github organization](https://github.com/LMOrbits) for building and deploying small language models. It is a collection of packages for building and deploying small language models. It is designed to be a simple and easy to use platform for building and deploying small language models. it is based on the thesis of [Parsa Mir](https://github.com/Parsa-Mir). as you can see from the picture below it consisit of 5 main parts:
 
-## Project Structure
+- [app](https://github.com/LMOrbits/app): this is the app package that is responsible for creating app stacks.
+- [data](https://github.com/LMOrbits/data): this is the data package that supports the data component of the slmops.
+- [ml](https://github.com/LMOrbits/lmorbits): this is the ml package that supports the ml component of the slmops.
+- [orchestration](https://github.com/LMOrbits/lmorbits): this is the orchestration package that supports the orchestration component of the slmops.
+- [serve](https://github.com/LMOrbits/serve): this is the serve package that supports the serve component of the slmops.
+- [infra](https://github.com/LMOrbits/slmops_infra): this is the infra package that supports the infra component of the slmops.
 
-To kick off your journey with our project, let's break it down into three exciting Git repositories! First up, we have the **Infrastructure as Code (IaC)** repository, which lays the groundwork for our infrastructure. Next, we dive into the **Operations** repository, where the magic happens as we manage and orchestrate our workflows. Finally, we have the **Application** repository, where you can find the application that utilizes the models in a tailored manner.
+![LMOrbits](lmorbits.png)
 
-you can explore each of these core repositories one by one, as it contains the essential packages that power the entire logic of our project. Get ready to discover the building blocks of LMOrbits and how they come together to create a seamless experience!
+## Maturity Levels
 
-1.  **LMOrbits**
+Depending on your use case and level of maturity you can choose to use the following options:
 
-    * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/lmorbits)
-    * This repository manages all the logic for our operations.
+1. starting from simple app stack to build a simple app and application on top of it with openly available llm and embedding models.
 
+   - [app](https://github.com/LMOrbits/app)
 
-2. **Infrastructure as Code (IaC)**
-   * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/slmops_infra)
-   * This repository lays the groundwork for our infrastructure.
+2. utilizing the data package to improve the performance of the app stack by using the data component of the slmops. utilizing the Rag system with the capabilities of versioing those to improve the performance of the app stack.
 
-{% hint style="success" %}
-Accessible within the lmorbits repository.
-{% endhint %}
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
 
-3. **Serve**
-   * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/serve)
-   * This repository is where the effort to make the serving model based on the experiment tracker easier specially on the user side.
+3. focusing much more on the app stack by scaling the app stacks from one to several app stack and bouding all with test data and setting different types such as intemidiate app and red team apps that helps you to synthesis test data and evaluation apps for validating the app stack.
 
-{% hint style="success" %}
-Accessible within the lmorbits repository.
-{% endhint %}
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
 
-4. **Application**
-   * [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge\&logo=github\&logoColor=white)](https://github.com/Parsa-Mir/slmops-app)
-   * This repository showcases a full stack application with LMOrbits integration.
+4. utilizing the ml package to train a model on a specific task and then using the serve package to serve the model.
 
-{% hint style="warning" %}
-Not accessible within the LMOrbits repository.
-{% endhint %}
+   - [app](https://github.com/LMOrbits/app)
+   - [data](https://github.com/LMOrbits/data)
+   - [ml](https://github.com/LMOrbits/lmorbits)
+   - [orchestration](https://github.com/LMOrbits/lmorbits)
+   - [serve](https://github.com/LMOrbits/serve)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
 
-### IaC
+5. utilizing the app project and ci/cd to build a full pipeline for building and deploying a model.
 
-Our infrastructure is designed to seamlessly support both cloud and local environments, making it versatile and user-friendly! For on-prem/local development, we utilize K3D/k3s, which allows you to easily set up a a light weight local Kubernetes environment on your system. This means you can test and develop the package right from your machine/machines! However, some functionalities, such as using cloud GPUs, may not work in this setup unless you have GPUs available in the K3s or K3D cluster.
+   - not implemented yet.
 
-On the cloud side, we leverage Terraform to manage our infrastructure instances efficiently. Our primary focus is on Google Cloud and Civo, where we implement various modules, including IAM rules, to ensure secure access and management. We cover essential services such as Google Cloud Storage, Vertex AI, Virtual Private Cloud (VPC), service accounts, compute resources, Cloud Build, and the Artifact Registry.
+### getting started
 
-Additionally, we support three distinct environments to cater to different stages of development. For Kubernetes system implementation, we use SIBO, which helps us initiate and manage cloud-native solutions effectively. This robust setup empowers you to build and deploy applications with confidence, whether locally or in the cloud!
-
-### LMOrbits
-
-LMOrbits focuses on the dynamic management and operation of Small Language Models (SLMs) through five interconnected components: Applications, which enable the creation of innovative SLM-based solutions; APP, which is the orchestration around the usage of the SLM such as chains, agents, vectordb and tools; Data, which provides a robust framework for data tasks; ML, where model fine-tuning, evaluations, and experiment tracking , quantization, distilations occur; Orchestration, powered by ZenML, that manages workflows across development, production, and staging; and Serve, responsible for deploying models in various environments. Together, these packages facilitate effective collaboration and enhance the overall functionality of the system, allowing users to explore the vast potential of LMOrbits.
-
-## Need Help?
-
-* 📝 Open an issue in our GitHub repository
-* 📧 Contact support@lmorbits.com
+we recommend to start from maturity level 1 and then move to the next level as you need.
+in order to get started we recommend to follow the procedures for each component seperately in this documentation.
+in order to set up the app stack you can follow the [app](https://github.com/LMOrbits/app) documentation.
