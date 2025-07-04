@@ -13,7 +13,7 @@ LMOrbits is a [github organization](https://github.com/LMOrbits) for building an
 - [serve](https://github.com/LMOrbits/serve): this is the serve package that supports the serve component of the slmops.
 - [infra](https://github.com/LMOrbits/slmops_infra): this is the infra package that supports the infra component of the slmops.
 
-![LMOrbits](lmorbits.png)
+![LMOrbits](../lmorbits.png)
 
 ## Maturity Levels
 
@@ -52,4 +52,3 @@ Depending on your use case and level of maturity you can choose to use the follo
 
 we recommend to start from maturity level 1 and then move to the next level as you need.
 in order to get started we recommend to follow the procedures for each component seperately in this documentation.
-in order to set up the app stack you can follow the [app](https://github.com/LMOrbits/app) documentation.
