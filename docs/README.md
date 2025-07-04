@@ -11,8 +11,8 @@ LMOrbits is a [github organization](https://github.com/LMOrbits) for building an
 
 - [app](https://github.com/LMOrbits/app): this is the app package that is responsible for creating app stacks.
 - [data](https://github.com/LMOrbits/data): this is the data package that supports the data component of the slmops.
-- [ml](https://github.com/LMOrbits/ml): this is the ml package that supports the ml component of the slmops.
-- [orchestration](https://github.com/LMOrbits/orchestration): this is the orchestration package that supports the orchestration component of the slmops.
+- [ml](https://github.com/LMOrbits/lmorbits): this is the ml package that supports the ml component of the slmops.
+- [orchestration](https://github.com/LMOrbits/lmorbits): this is the orchestration package that supports the orchestration component of the slmops.
 - [serve](https://github.com/LMOrbits/serve): this is the serve package that supports the serve component of the slmops.
 - [infra](https://github.com/LMOrbits/slmops_infra): this is the infra package that supports the infra component of the slmops.
 
@@ -42,14 +42,17 @@ Depending on your use case and level of maturity you can choose to use the follo
 
    - [app](https://github.com/LMOrbits/app)
    - [data](https://github.com/LMOrbits/data)
-   - [ml](https://github.com/LMOrbits/ml)
-   - [lmorbits](https://github.com/LMOrbits/lmorbits)
+   - [ml](https://github.com/LMOrbits/lmorbits)
+   - [orchestration](https://github.com/LMOrbits/lmorbits)
    - [serve](https://github.com/LMOrbits/serve)
+   - [infra](https://github.com/LMOrbits/slmops_infra)
 
 5. utilizing the app project and ci/cd to build a full pipeline for building and deploying a model.
 
    - not implemented yet.
 
-### Prerequisites
+### getting started
 
-...
+we recommend to start from maturity level 1 and then move to the next level as you need.
+in order to get started we recommend to follow the procedures for each component seperately in this documentation.
+in order to set up the app stack you can follow the [app](https://github.com/LMOrbits/app) documentation.
