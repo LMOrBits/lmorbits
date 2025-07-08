@@ -48,7 +48,9 @@ Depending on your use case and level of maturity you can choose to use the follo
 
    - not implemented yet.
 
-### getting started
+## getting started
 
-we recommend to start from maturity level 1 and then move to the next level as you need.
+We recommend to start from maturity level 1 and then move to the next level as you need.
 in order to get started we recommend to follow the procedures for each component seperately in this documentation.
+
+Please follow the maturity levels in order to get started. and make sure to follow the maturity levels in order to get started.
