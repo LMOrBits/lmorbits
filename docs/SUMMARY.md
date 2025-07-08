@@ -4,13 +4,13 @@
 
 - [Quick Guide](README.md)
   - [Introduction](introduction/README.md)
-  - [LMOrbits](getting-started/lmorbits.md)
   - [Infrastructure](getting-started/infrastructure.md)
-  - [app](getting-started/app.md)
+  - [Simple Example](getting-started/simple-example.md)
+  <!-- - [app](getting-started/app.md)
   - [data](getting-started/data.md)
   - [ml](getting-started/ml.md)
   - [orchestration](getting-started/orchestration.md)
-  - [serve](getting-started/serve.md)
+  - [serve](getting-started/serve.md) -->
 
 ## 📚 How To
 
