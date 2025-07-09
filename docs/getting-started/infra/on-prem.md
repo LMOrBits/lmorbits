@@ -1,6 +1,6 @@
 ---
-icon: device
 description: on prem setup
+icon: network-wired
 ---
 
 # On Prem
