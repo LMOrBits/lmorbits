@@ -11,7 +11,7 @@ Follow these steps to get started:
 
 1. Set Up the Environment
 
-   - Configure your infrastructure environment following the [infrastructure guide](infra/infrastructure.md) please use the cloud based infrastructure for starting ,the on prem setup is under development.
+   - Configure your infrastructure environment following the [infrastructure guide](getting-started/infra/README.md)
    - Choose between local or cloud-based deployment options
    - Ensure all prerequisites are installed and configured properly
 
