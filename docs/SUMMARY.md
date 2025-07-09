@@ -6,11 +6,6 @@
   - [Introduction](introduction/README.md)
   - [Infrastructure](getting-started/infrastructure.md)
   - [SimpleExample](getting-started/simple-example.md)
-  <!-- - [app](getting-started/app.md)
-  - [data](getting-started/data.md)
-  - [ml](getting-started/ml.md)
-  - [orchestration](getting-started/orchestration.md)
-  - [serve](getting-started/serve.md) -->
 
 ## 📚 How To
 
