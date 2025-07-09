@@ -5,7 +5,7 @@
 - [Quick Guide](README.md)
   - [Introduction](introduction/README.md)
   - [Infrastructure](getting-started/infrastructure.md)
-  - [Simple Example](getting-started/simple-example.md)
+  - [SimpleExample](getting-started/simple-example.md)
   <!-- - [app](getting-started/app.md)
   - [data](getting-started/data.md)
   - [ml](getting-started/ml.md)
