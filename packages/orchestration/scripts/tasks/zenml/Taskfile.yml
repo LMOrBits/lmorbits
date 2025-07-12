@@ -2,16 +2,24 @@ version: "3"
 includes:
   integrations: integrations/Taskfile.yml
   secrets: secrets/Taskfile.yml
+  setup: setup/Taskfile.yml
+  test: test/Taskfile.yml
 
 vars:
-  ZENML_HOST:
-    sh: echo "${ZENML_HOST:-https://zenml.lmorbits.com}"
+  ZENML_HOST: '{{default .ZENML_HOST "https://zenml.lmorbits.com"}}'
 
 tasks:
   zenml-init:
+    silent: false
     cmds:
+      - |
+        unset ZENML_STORE_URL
+        unset ZENML_STORE_API_KEY
+        unset ZENML_STORE_USERNAME
+        unset ZENML_STORE_PASSWORD
+        uv run zenml downgrade
+        uv run zenml login {{.ZENML_HOST}} --refresh
       - uv run zenml init
-      - uv run zenml login {{.zenml_host}}
 
   delete-test-pipelines:
     cmds:

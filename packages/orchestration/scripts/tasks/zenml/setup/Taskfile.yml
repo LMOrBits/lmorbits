@@ -1,0 +1,557 @@
+version: "3"
+
+vars:
+  REALATIVE_PATH: "../.."
+  KUBECONFIG_PATH: "{{.KUBECONFIG_PATH}}"
+  MLFLOW_ADDRESS: "{{.MLFLOW_ADDRESS}}"
+  MLFLOW_USERNAME: "{{.MLFLOW_USERNAME}}"
+  MLFLOW_PASSWORD: "{{.MLFLOW_PASSWORD}}"
+  DOCKER_EMAIL: "{{.DOCKER_EMAIL}}"
+  DOCKER_SERVER: "{{.DOCKER_SERVER}}"
+  GCS_PROJECT_ID: "{{.GCS_PROJECT_ID}}"
+  GCS_BUCKET_NAME_ML_ARTIFACTS: "{{.GCS_BUCKET_NAME_ML_ARTIFACTS}}"
+  GCS_BUCKET_NAME_DATA: "{{.GCS_BUCKET_NAME_DATA}}"
+  GCS_REGISTRY_REPO_NAME: "{{.GCS_REGISTRY_REPO_NAME}}"
+  DOCKER_JSON_PATH_ABSOLUTE: "{{.REALATIVE_PATH}}/{{.DOCKER_JSON_PATH}}"
+  SKY_SERVICE_ACCOUNT_JSON_PATH_ABSOLUTE: "{{.REALATIVE_PATH}}/{{.SKY_SERVICE_ACCOUNT_JSON_PATH}}"
+  GCS_REGION: "{{.GCS_REGION}}"
+  ML_DEV_USER_NAME: '{{.ML_DEV_USER_NAME | default "ML_DEV"}}'
+  ML_DEV_USER_PASSWORD: '{{.ML_DEV_USER_PASSWORD | default "ML_DEV"}}'
+  DATA_DEV_USER_NAME: '{{.DATA_DEV_USER_NAME | default "DATA_DEV"}}'
+  DATA_DEV_USER_PASSWORD: '{{.DATA_DEV_USER_PASSWORD | default "DATA_DEV"}}'
+  SERVE_USER_NAME: '{{.SERVE_USER_NAME | default "SERVE"}}'
+  SERVE_USER_PASSWORD: '{{.SERVE_USER_PASSWORD | default "SERVE"}}'
+  ORCHESTRATOR_USER_NAME: '{{.ORCHESTRATOR_USER_NAME | default "ORCHESTRATOR"}}'
+  ORCHESTRATOR_USER_PASSWORD: '{{.ORCHESTRATOR_USER_PASSWORD | default "ORCHESTRATOR"}}'
+  APPLICATION_USER_NAME: '{{.APPLICATION_USER_NAME | default "APPLICATION"}}'
+  APPLICATION_USER_PASSWORD: '{{.APPLICATION_USER_PASSWORD | default "APPLICATION"}}'
+  PROJECT_ID: "{{.GCS_PROJECT_ID}}"
+  REGION: "{{.GCS_REGION}}"
+  REPO_NAME: "{{.GCS_REGISTRY_REPO_NAME}}"
+  GP: '{{.GP | default "none"}}'
+  TAG: '{{.TAG | default "latest"}}'
+  IMAGE_NAME: "zenml-image-{{.GP}}"
+  FULL_IMAGE_NAME: "{{.GCS_REGION}}-docker.pkg.dev/{{.GCS_PROJECT_ID}}/{{.GCS_REGISTRY_REPO_NAME}}/zenml-image-{{.GP}}:{{.TAG}}"
+
+tasks:
+  debug:
+    desc: Debug variables
+    cmds:
+      - echo {{ .GCS_PROJECT_ID }}
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} get pods
+      - pwd
+      - ls  {{.REALATIVE_PATH}}
+      - echo {{.REALATIVE_PATH}}
+      - cat  {{.DOCKER_JSON_PATH_ABSOLUTE}}
+      - cat  {{.SKY_SERVICE_ACCOUNT_JSON_PATH_ABSOLUTE}}
+
+  check-exists:
+    desc: Check if ZenML components exist
+    vars:
+      COMPONENT: "{{.COMPONENT}}"
+      NAME: "{{.NAME}}"
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          exit 0
+        else 
+          echo "🚀 Not found—installing {{.COMPONENT}} '{{.NAME}}'…"
+        fi
+
+  example-of-install-if-not-exists:
+    desc: “Install a ZenML component only if it’s missing”
+    vars:
+      COMPONENT: orchestrator
+      NAME: simple-local
+    cmds:
+      - task: check-exists
+        vars:
+          COMPONENT: "{{.COMPONENT}}"
+          NAME: "{{.NAME}}"
+        silent: true
+      - |
+        if [ $? -eq 0 ]; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else
+          echo "🚀 Not found—installing {{.COMPONENT}} '{{.NAME}}'…"
+        fi
+
+  integrate-kubernetes:
+    desc: Install Kubernetes integration
+    cmds:
+      - uv run zenml integration install --uv kubernetes
+
+  all-integrations:
+    desc: Install all required integrations
+    cmds:
+      - uv run zenml integration install --uv kubernetes -y
+      - uv run zenml integration install --uv gcp -y
+      - uv run zenml integration install --uv mlflow -y
+      - uv run zenml integration install --uv hyperai -y
+      - uv run zenml integration install --uv aws -y
+      - uv run zenml integration install --uv azure -y
+
+      # - uv run zenml integration install --uv skypilot_gcp -y
+      # - uv run zenml integration install --uv skypilot_kubernetes -y
+  
+  create-service-account:
+    desc: Create service account
+    vars:
+      COMPONENT: service-account
+      NAME: sky-service-account
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component service-account '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} create {{.NAME}}
+        fi
+
+  #region Users
+  create-users:
+    desc: Create all users
+    cmds:
+      - uv run zenml user create {{.ML_DEV_USER_NAME}} --password {{.ML_DEV_USER_PASSWORD}} --is_admin
+      # - uv run zenml user create {{.DATA_DEV_USER_NAME}} --password {{.DATA_DEV_USER_PASSWORD}} --is_admin
+      # - uv run zenml user create {{.SERVE_USER_NAME}} --password {{.SERVE_USER_PASSWORD}} --is_admin
+      # - uv run zenml user create {{.ORCHESTRATOR_USER_NAME}} --password {{.ORCHESTRATOR_USER_PASSWORD}} --is_admin
+      # - uv run zenml user create {{.APPLICATION_USER_NAME}} --password {{.APPLICATION_USER_PASSWORD}}
+
+  #region Service Account
+  create-service-account:
+    desc: Create service account
+    vars:
+      COMPONENT: service-account
+      NAME: sky-service-account
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component service-account 'sky-service-account' already exists, skipping."
+        else
+          uv run zenml service-account create sky-service-account
+        fi
+
+  local-gcs:
+    desc: Setup local with GCS
+    cmds:
+      - task: create-gcs-connector
+      - task: create-gcs-artifact-store
+      - task: create-local-orchestrator
+      - task: add-mlflow-tracking
+      - task: setup-stack-local-gcs-mlflow
+
+  local-gpu-gcs:
+    desc: Setup local GPU with GCS
+    cmds:
+      - task: create-gcs-connector
+      - sleep 1
+      - task: create-gcs-artifact-store
+      - sleep 1
+      - task: create-local-gpu-orchestrator
+      - sleep 1
+      - task: add-mlflow-tracking
+      - sleep 1
+      - task: setup-stack-local-gpu-gcs-mlflow
+
+  all-k8s:
+    desc: Setup complete K8s environment
+    deps:
+      - all-integrations
+      - create-gcs-connector
+      - create-gcs-artifact-store
+      - create-gcs-container-registry
+      - create-k8s-orchestrator
+      - create-local-image-builder
+      - add-mlflow-tracking
+      - add-data-validation
+      - k8s-enable-gcs-container-registry
+      - setup-stack-gcs-mlflow-k8s-gcs
+
+  sky-gcs:
+    desc: Setup Sky with GCS
+    deps:
+      - all-integrations
+      - create-gcs-connector-sky
+      - add-sky-gcs
+      - setup-stack-gcs-mlflow-sky-gcs
+
+  delete-all:
+    desc: Delete all ZenML components
+    cmds:
+      - uv run zenml stack delete test-stack || true
+      - uv run zenml model-registry delete gcs-mlflow || true
+      - uv run zenml artifact-store delete gcs_store || true
+      - uv run zenml container-registry delete gcs-container-registry || true
+      - uv run zenml orchestrator delete k8s || true
+      - uv run zenml image-builder delete docker-local || true
+      - uv run zenml experiment-tracker delete mlflow_tracker || true
+
+  #region Stack Management
+  stack-default:
+    desc: Set default stack
+    cmds:
+      - uv run zenml stack set default
+
+  stack-k8s:
+    desc: Set K8s stack
+    cmds:
+      - uv run zenml stack set stack-k8s-gcs
+
+  #region GCP Services
+  create-gcs-connector:
+    desc: Create GCS connector
+    vars:
+      COMPONENT: service-connector
+      NAME: google_cloud_connector
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --type gcp --auto-configure --project_id={{.GCS_PROJECT_ID}}
+        fi
+
+  create-gcs-artifact-store:
+    desc: Create GCS artifact store
+    vars:
+      COMPONENT: artifact-store
+      NAME: gcs_store
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component artifact-store '{{.NAME}}' already exists, skipping."
+        else
+         uv run zenml {{.COMPONENT}} register {{.NAME}} -f gcp --path=gs://{{.GCS_BUCKET_NAME_ML_ARTIFACTS}} --authentication_secret=gcp_secret
+        fi
+      - uv run zenml {{.COMPONENT}} connect {{.NAME}} --connector google_cloud_connector
+
+  create-gcs-container-registry:
+    desc: Create GCS container registry
+    vars:
+      COMPONENT: container-registry
+      NAME: gcs-container-registry
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component container-registry '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=gcp --uri={{.DOCKER_SERVER}}/{{.GCS_PROJECT_ID}}/{{.GCS_REGISTRY_REPO_NAME}}
+        fi
+      - uv run zenml container-registry connect gcs-container-registry --connector google_cloud_connector
+
+  create-gcs-connector-sky:
+    desc: Create GCS connector for Sky
+    cmds:
+      - |
+        SKY_SERVICE_ACCOUNT_JSON=$(cat {{.SKY_SERVICE_ACCOUNT_JSON_PATH_ABSOLUTE}})
+        uv run zenml service-connector register google_cloud_connector_sky_service \
+          --type gcp \
+          --auth-method=service-account \
+          --service_account_json="$SKY_SERVICE_ACCOUNT_JSON" \
+          --project_id={{.GCS_PROJECT_ID}}
+
+  #region Orchestrator Setup
+  create-local-orchestrator:
+    desc: Create local orchestrator
+    vars:
+      COMPONENT: orchestrator
+      NAME: simple-local
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component orchestrator '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=local
+        fi
+
+  create-local-gpu-orchestrator:
+    desc: Create local GPU orchestrator
+    vars:
+      COMPONENT: orchestrator
+      NAME: simple-local-gpu
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component orchestrator '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=local
+        fi
+
+  create-k3d-orchestrator:
+    desc: Create K3d orchestrator
+    vars:
+      COMPONENT: orchestrator
+      NAME: k3d-orchestrator
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component orchestrator '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=kubernetes --kubernetes_context=k3d-slmops-cluster
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} create namespace zenml
+
+  create-k8s-orchestrator:
+    desc: Create K8s orchestrator
+    vars:
+      COMPONENT: orchestrator
+      NAME: k8s
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component orchestrator '{{.NAME}}' already exists, skipping."
+        else
+          current_context=$(kubectl --kubeconfig {{.KUBECONFIG_PATH}} config current-context)
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=kubernetes --kubernetes_context="$current_context"
+        fi
+
+  add-sky-kube:
+    desc: Add Sky Kubernetes
+    vars:
+      COMPONENT: orchestrator
+      NAME: sky-kube
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component integration 'skypilot_kubernetes' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor sky_kubernetes
+        fi
+
+  add-sky-gcs:
+    desc: Add Sky GCS
+    cmds:
+      - uv add "zenml[connectors-gcp]"
+      - uv run zenml integration install gcp skypilot_gcp --uv -y
+      - uv run zenml orchestrator register sky-gcs --flavor vm_gcp
+      - uv run zenml orchestrator connect sky-gcs --connector google_cloud_connector_sky_service
+      - uv run zenml service-connector update google_cloud_connector_sky_service --generate_temporary_tokens=False
+
+  #region Enable GCS Container Registry
+  k3d-enable-gcs-container-registry:
+    desc: Enable GCS container registry for K3d
+    cmds:
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} apply -f ./scripts/access.yaml
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount default -n zenml -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount zenml-service-account -n zenml -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount default -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - |
+        DOCKER_JSON_KEY=$(cat {{.DOCKER_JSON_PATH_ABSOLUTE}})
+        kubectl --kubeconfig {{.KUBECONFIG_PATH}} create secret docker-registry artifact-registry-secret --namespace zenml \
+          --docker-server="{{.DOCKER_SERVER}}" \
+          --docker-username="_json_key" \
+          --docker-password="$DOCKER_JSON_KEY" \
+          --docker-email="{{.DOCKER_EMAIL}}"
+
+  k8s-enable-gcs-container-registry:
+    desc: Enable GCS container registry for K8s
+    cmds:
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} apply -f ./scripts/access.yaml
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount default -n zenml -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount zenml-service-account -n zenml -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} patch serviceaccount default -p '{"imagePullSecrets":[{"name":"artifact-registry-secret"}]}'
+      - |
+        DOCKER_JSON_KEY=$(cat {{.DOCKER_JSON_PATH_ABSOLUTE}})
+        kubectl --kubeconfig {{.KUBECONFIG_PATH}} create secret docker-registry artifact-registry-secret --namespace zenml \
+          --docker-server="{{.DOCKER_SERVER}}" \
+          --docker-username="_json_key" \
+          --docker-password="$DOCKER_JSON_KEY" \
+          --docker-email="{{.DOCKER_EMAIL}}"
+
+  #region Image Builder Setup
+  create-local-image-builder:
+    desc: Create local image builder
+    vars:
+      COMPONENT: image-builder
+      NAME: docker-local
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=local
+        fi
+      - kubectl --kubeconfig {{.KUBECONFIG_PATH}} create secret generic registry-secret --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson
+
+  add-mlflow-model-registry:
+    desc: Add MLflow model registry
+    vars:
+      COMPONENT: model-registry
+      NAME: gcs-mlflow
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} -f mlflow
+        fi
+
+  #region MLflow Setup
+  add-mlflow-tracking-local:
+    desc: Add MLflow tracking for local
+    vars:
+      COMPONENT: experiment-tracker
+      NAME: mlflow_tracker-local
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=mlflow --tracking_username=admin --tracking_password=slmops --tracking_uri=http://mlflow-server-tracking.default.svc.cluster.local:5000
+        fi
+      - task: add-mlflow-model-registry
+        vars:
+          COMPONENT: model-registry
+          NAME: gcs-mlflow-local
+
+  add-mlflow-tracking:
+    desc: Add MLflow tracking
+    vars:
+      COMPONENT: experiment-tracker
+      NAME: mlflow_tracker
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component {{.COMPONENT}} '{{.NAME}}' already exists, skipping."
+        else 
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=mlflow --tracking_username={{.MLFLOW_USERNAME}} --tracking_password={{.MLFLOW_PASSWORD}} --tracking_uri={{.MLFLOW_ADDRESS}}
+        fi
+      - task: add-mlflow-model-registry
+
+  show-variables:
+    desc: Show all variables
+    cmds:
+      - echo "mlflow_address{{":"}} {{.MLFLOW_ADDRESS}}"
+      - echo "mlflow_username{{":"}} {{.MLFLOW_USERNAME}}"
+      - echo "mlflow_password{{":"}} {{.MLFLOW_PASSWORD}}"
+      - echo "docker_server{{":"}} {{.DOCKER_SERVER}}"
+      - echo "docker_email{{":"}} {{.DOCKER_EMAIL}}"
+
+  #region Data Validation Setup
+  add-data-validation:
+    desc: Add data validation
+    vars:
+      COMPONENT: data-validator
+      NAME: deepchecks_data_validator
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component data-validator '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --flavor=deepchecks
+        fi
+
+  #region Stack Configurations
+  setup-stack-local-gcs-mlflow:
+    desc: Setup local GCS MLflow stack
+    vars:
+      COMPONENT: stack
+      NAME: stack-local
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component stack '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} copy default {{.NAME}}
+        fi
+      - uv run zenml {{.COMPONENT}} update {{.NAME}} --artifact-store gcs_store --model_registry gcs-mlflow --experiment_tracker mlflow_tracker --orchestrator simple-local
+      - uv run zenml {{.COMPONENT}} set {{.NAME}}
+
+  setup-stack-local-gpu-gcs-mlflow:
+    desc: Setup local GPU GCS MLflow stack
+    vars:
+      COMPONENT: stack
+      NAME: stack-local-gpu
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component stack '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml stack copy default {{.NAME}}
+        fi
+      - uv run zenml {{.COMPONENT}} update {{.NAME}} --artifact-store gcs_store --model_registry gcs-mlflow --experiment_tracker mlflow_tracker --orchestrator simple-local-gpu
+      - uv run zenml {{.COMPONENT}} set {{.NAME}}
+
+  setup-stack-gcs-mlflow-sky-gcs:
+    desc: Setup GCS MLflow Sky GCS stack
+    vars:
+      COMPONENT: stack
+      NAME: stack-sky-gcs
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component stack '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --artifact-store gcs_store --orchestrator sky-gcs --container_registry gcs-container-registry --image_builder docker-local --model_registry gcs-mlflow --experiment_tracker mlflow_tracker --connector google_cloud_connector_sky_service --set
+        fi
+      - uv run zenml {{.COMPONENT}} set {{.NAME}}
+
+  setup-stack-gcs-mlflow-k8s-gcs:
+    desc: Setup GCS MLflow K8s GCS stack
+    vars:
+      COMPONENT: stack
+      NAME: stack-k8s-gcs
+    cmds:
+      - |
+        if uv run zenml {{.COMPONENT}} list --name {{.NAME}} | grep "items found"; then
+          echo "✅ Component stack '{{.NAME}}' already exists, skipping."
+        else
+          uv run zenml {{.COMPONENT}} register {{.NAME}} --artifact-store gcs_store --orchestrator k8s --container_registry gcs-container-registry --image_builder docker-local --model_registry gcs-mlflow --experiment_tracker mlflow_tracker --set
+        fi
+      - uv run zenml {{.COMPONENT}} set {{.NAME}}
+      - uv run zenml stack list
+
+  #region Docker Build for slmops packages
+  build:
+    desc: Build Docker image
+    cmds:
+      - |
+        if [ "{{.GP}}" = "ml-package" ]; then
+          docker build -f ml.Dockerfile -t {{.IMAGE_NAME}}:{{.TAG}} .
+        elif [ "{{.GP}}" = "orchestration" ]; then
+          docker build -f orchestration.Dockerfile -t {{.IMAGE_NAME}}:{{.TAG}} .
+        elif [ "{{.GP}}" = "data-package" ]; then
+          docker buildx build --platform {{.BUILDPLATFORM}} -f data.Dockerfile -t {{.IMAGE_NAME}}:{{.TAG}} .
+        else
+          docker build --build-arg SELECTED_GROUP={{.GP}} -t {{.IMAGE_NAME}}:{{.TAG}} .
+        fi
+
+  tag:
+    desc: Tag image for Artifact Registry
+    cmds:
+      - docker tag {{.IMAGE_NAME}} {{.FULL_IMAGE_NAME}}
+
+  auth:
+    desc: Authenticate Docker with Google Artifact Registry
+    cmds:
+      - gcloud auth configure-docker {{.DOCKER_SERVER}}
+
+  push:
+    desc: Push image to Google Artifact Registry
+    deps: [auth, tag]
+    cmds:
+      - docker push {{.FULL_IMAGE_NAME}}
+
+  build-tag-push:
+    desc: Build, tag and push image
+    deps: [build, tag, push]
+
+  clean:
+    desc: Clean up local images
+    cmds:
+      - docker rmi {{.IMAGE_NAME}}:{{.TAG}} || true
+      - docker rmi {{.FULL_IMAGE_NAME}} || true
+
+  exec:
+    desc: Execute container interactively
+    cmds:
+      - docker run -it {{.IMAGE_NAME}} /bin/bash
+
+  sky-up:
+    desc: Launch Sky instance
+    cmds:
+      - uv run sky launch skypilot.yaml --name gpu-l4
+
+  sky-down:
+    desc: Terminate Sky instance
+    cmds:
+      - uv run sky down gpu-l4

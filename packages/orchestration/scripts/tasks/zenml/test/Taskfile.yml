@@ -1,0 +1,20 @@
+version: "3"
+
+tasks:
+  debug:
+    cmds:
+      - echo "test is working ok"
+  plot-test:
+    dir: ./test
+    vars:
+      STACK: "stack-local"
+    cmds:
+      - uv run zenml stack set {{.STACK}}
+      - uv run plot.py
+  skypilot:
+    dir: ./test
+    vars:
+      STACK: "stack-local"
+    cmds:
+      - uv run zenml stack set {{.STACK}}
+      - uv run simple_sky.py
