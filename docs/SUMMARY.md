@@ -4,10 +4,10 @@
 
 - [Quick Guide](README.md)
   - [Introduction](introduction/README.md)
+  - [SimpleExample](getting-started/simple-example.md)
   - [Infrastructure](getting-started/infra/README.md)
     - [Cloud](getting-started/infra/cloud.md)
     - [On Prem](getting-started/infra/on-prem.md)
-  - [SimpleExample](getting-started/simple-example.md)
 
 ## 📚 How To
 
