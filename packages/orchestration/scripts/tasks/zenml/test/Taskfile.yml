@@ -4,17 +4,17 @@ tasks:
   debug:
     cmds:
       - echo "test is working ok"
-  plot-test:
+  plot:
     dir: ./test
     vars:
-      STACK: "stack-local"
+      STACK: '{{default "stack-local" .STACK}}'
     cmds:
       - uv run zenml stack set {{.STACK}}
       - uv run plot.py
   skypilot:
     dir: ./test
     vars:
-      STACK: "stack-local"
+      STACK: '{{default "stack-local" .STACK}}'
     cmds:
       - uv run zenml stack set {{.STACK}}
       - uv run simple_sky.py
