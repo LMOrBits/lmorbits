@@ -96,6 +96,7 @@ uv run task zenml:test:skypilot
 ```
 
 this will create a pipeline (e.i. test_sky_simple_pipeline) in which in this pipline it will create a skypilot instance and then run a new pipeline in that instance (e.i. html_plotly_pipline same as test which was our intention to test the pipeline in the skypilot instance that we initiated with our piplines). As you can see in the image below , the html_plotly_pipline will be run in the skypilot instance as the author of it is the skypilot instance.
+
 ![image of the the zenml pipeline](./zen-sky.png)
 
 #### 5. now we set up the lakefs instace:

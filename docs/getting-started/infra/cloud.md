@@ -3,79 +3,63 @@ icon: cloud
 description: Learn how to develop applications with our ML platform
 ---
 
-# Cloud Infrastructure Setup Guide
+# prerequisites
 
-## Prerequisites
+- [gcloud](https://cloud.google.com/sdk/docs/install)
+- [terraform](https://www.terraform.io/downloads)
+- [sky](https://skypilot.readthedocs.io/en/latest/getting-started/installation.html)
+- [civo](https://www.civo.com/learn/how-to-install-civo-cli)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
 
-Before you begin, ensure you have the following tools installed:
+# setup
 
-- [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud SDK
-- [terraform](https://www.terraform.io/downloads) - Infrastructure as Code tool
-- [sky](https://skypilot.readthedocs.io/en/latest/getting-started/installation.html) - Cloud management tool
-- [civo](https://www.civo.com/learn/how-to-install-civo-cli) - Civo CLI
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) - Kubernetes CLI
+## 1. clone the the infrastructure repository seperately if you only want to seperate your infra repo from lmobits repo since the lmobits repo is a monorepo and the infra repo is a submodule.
 
-## Setup Instructions
+- if you want to clone the lmorbits repo, you can use the following command:
+  ```bash
+  gh repo clone LMOrBits/lmorbits
+  cd lmorbits
+  ```
+- if you want to clone the infrastructure repo, you can use the following command:
+  ```bash
+  gh repo clone LMOrBits/slmops_infra
+  mv slmops_infra infrastructure
+  ```
 
-### 1. Repository Setup
+## 2. install the taskfile
 
-You have two options for setting up the repository:
+- locally via python pacakges
+  ```bash
+    cd infrastructure
+    uv sync
+    source .venv/bin/activate
+  ```
+- install the taskfile via [taskfile](https://taskfile.dev/installation/)
 
-#### Option A: Clone the Complete LMOrBits Repository
-
-```bash
-gh repo clone LMOrBits/lmorbits
-cd lmorbits
-```
-
-#### Option B: Clone Infrastructure Repository Separately
-
-```bash
-gh repo clone LMOrBits/slmops_infra
-mv slmops_infra infrastructure
-```
-
-### 2. Install Taskfile
-
-Choose one of the following installation methods:
-
-#### Local Python Installation
-
-```bash
-cd infrastructure
-uv sync
-source .venv/bin/activate
-```
-
-#### Direct Taskfile Installation
-
-Install via [taskfile website](https://taskfile.dev/installation/)
-
-### 3. Google Cloud Authentication
+## 3. login to the gcloud :
 
 ```bash
 gcloud auth login
 ```
 
-### 4. Civo API Configuration
+## 4. put your civo api key in the .env file in dev folder
 
-1. Create a Civo account if you don't have one: [Signup here](https://www.civo.com/signup)
-2. Generate an API key following the [official guide](https://www.civo.com/docs/account/api-keys)
-3. Set your API key:
+in order to get the civo api key, you first need to have a civo account.
+
+- if you don't have a civo account, you can create one [here](https://www.civo.com/signup)
+- if you have a civo account, you need to follow the steps in [here](https://www.civo.com/docs/account/api-keys) to get the api key.
 
 ```bash
 echo export TF_VAR_civo_token=<your-civo-api-key> > cloud/terraform/environments/dev/.env
 ```
 
-### 5. Cluster Configuration
-
-Edit your cluster configuration:
+## 5. edit the desired state for the civo cluster :
 
 ```bash
 code cloud/terraform/environments/dev/civo-cluster-config.yaml
 ```
 
-#### Available Cluster Sizes
+> you can get more deatial with `civo kubernetes size` command. to get all of the sizes.
 
 | Name            | Description                 | Type       | CPU Cores | RAM MB | SSD GB | Selectable |
 | --------------- | --------------------------- | ---------- | --------- | ------ | ------ | ---------- |
@@ -96,102 +80,118 @@ code cloud/terraform/environments/dev/civo-cluster-config.yaml
 | g4m.kube.large  | Large - RAM optimized       | Kubernetes | 8         | 65536  | 120    | Yes        |
 | g4m.kube.xlarge | Extra Large - RAM optimized | Kubernetes | 16        | 131072 | 180    | Yes        |
 
-### 6. Infrastructure Deployment
+you can use `vim` or `nano` to edit the file.
+
+## 6. now you can run the following command to initiate the infrastructure:
 
 ```bash
 task cloud:initiate-iac
 ```
 
-When prompted, enter `dev` as the environment name.
+enter the dev when you asked to select the environment.
+Environment name (e.g., dev, prod)
 
-> ⚠️ **Important**: Review the Terraform plan carefully before confirming with `yes`.
+Enter a value: `dev`
 
-### 7. Kubernetes Configuration
+in last step, it will show you the actions that terraform will take. please review the actions and enter `yes` to continue.
 
-Set up kubectl context:
+this will take a while to complete. have a cup of coffee and come back later ☕️.
+
+> It is worth mentioning that when updating a Civo cluster using Terraform, any changes to the cluster configuration will result in the destruction and recreation of the cluster, rather than an in-place update. Please ensure you have backed up any important data before scaling or modifying the cluster configuration. please check the last section of the document to see how to delete or modify the cluster.
+
+## 7. change the kubectl context to the new cluster:
 
 ```bash
 source <(uv run task cloud:iac:activate-kubeconfig)
 ```
 
-Alternative manual setup:
+or do it manually:
 
 ```bash
 cp cloud/terraform/environments/dev/keys /tmp/kubeconfig-dev
 export KUBECONFIG=/tmp/kubeconfig-dev
 ```
 
-Verify cluster access:
+test the cluster by running the following command:
 
 ```bash
 kubectl get nodes
 ```
 
-### 8. Package Installation
-
-Install required packages:
+## 8. now its time to install the packages in the cluster.
 
 ```bash
 task cloud:initiate-k8s
 ```
 
-Monitor deployment:
+> if did not worked try to `task cloud:delete-k8s` and try again.
+
+try now to monitor the pods in the cluster:
 
 ```bash
 uv run watch
 ```
 
-### 9. Domain Configuration
-
-1. Get ingress IP:
+## 9. since we are utilitzing the ingress we need to connect our domain to the ingress. in order to get the ip of the ingress you can run the following command:
 
 ```bash
 uv run task cloud:k8s:get-ingress-ip
 ```
 
-2. Update domain settings:
+now go to your domain provider and add the ip to the domain, since we have mlflow , lakefs, zenml, you need to set those
+
+so first chanage the current domain from lmorbits to your domain.
 
 ```bash
 uv run task cloud:k8s:change-main-domain PREVIOUS_DOMAIN=lmorbits.com NEW_DOMAIN=custom.com
 ```
 
-3. Configure DNS records as shown:
-   ![DNS Configuration Example](./dns.png)
+now you can add the ip to the domain with A type. like the below image:
 
-### 10. Service Access
+![dns example](./dns.png)
 
-Access your services through the configured domain. Initial credentials:
+## 10. now you can access the mlflow, lakefs, zenml, and the rest of the services by going to the domain you have set.
 
-- MLFlow: See [mlflow configuration](../../../infrastructure/cloud/manifests/mlflow.yml)
-- LakeFS and ZenML: Set credentials on first login
+    the passwords for mlflow can be found in the [mlflow](../../../infrastructure/cloud/manifests/mlflow.yml) and the passwords for lakefs and zenml will be set at the first time you login to the services.
 
-🎉 **Congratulations! Your infrastructure is now ready.**
+> congratulations 🎉 you have successfully set up the infrastructure.
 
-## Maintenance and Cleanup
+![success](https://media1.tenor.com/m/HUDIU5GEuFwAAAAd/jose-mourinho-funky.gif)
 
-### Removing Resources
+# how to delete all the resources
 
-#### Option 1: Complete Cleanup
+### 1. delete the packages and the pvc in the cluster
 
 ```bash
 task cloud:delete-k8s
-task cloud:delete-dev-environment
 ```
 
-#### Option 2: Cluster Management
-
-To disable Civo cluster:
+if you want to only remove or change the cluster type of the civo since it does not support the change of type in the terraform, and kubernetes is one of the most expensive part, you can run the following command:
 
 ```bash
 sed -i '' 's/enable_civo_cluster = true/enable_civo_cluster = false/g' \
   cloud/terraform/environments/dev/terraform.tfvars
 ```
 
-To re-enable Civo cluster:
+and if you want to enable the civo cluster again, you can run the following command:
 
 ```bash
 sed -i '' 's/enable_civo_cluster = false/enable_civo_cluster = true/g' \
   cloud/terraform/environments/dev/terraform.tfvars
 ```
 
-> 📝 **Note**: If encountering volume deletion errors, manually remove them from the Civo dashboard before retrying.
+in order to change the cluster type, you can run the following command and modify the cluster type:
+
+```bash
+code cloud/terraform/environments/dev/civo-cluster-config.yaml
+```
+
+this will take a while since deleting the pvc will take a while. if it gave error about the mlflow-sereve ignore it for now.
+
+2. delete the infrastructure
+
+```bash
+task cloud:delete-dev-environment
+```
+
+if the civo gave you error pleas go to dashboard in the volume section and deleter the volumes there, then try again. and
