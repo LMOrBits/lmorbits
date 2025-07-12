@@ -1,0 +1,25 @@
+version: "3"
+
+vars:
+  CLUSTER: "${CLUSTER:-sky-cluster}"
+  YAML: "${YAML:-skypilot.yaml}"
+
+tasks:
+  up:
+    desc: "Provision and launch SkyPilot cluster"
+    cmds:
+      - sky launch -c {{.CLUSTER}} {{.YAML}}
+
+  status:
+    desc: "Show status of SkyPilot cluster"
+    cmds:
+      - sky status {{.CLUSTER}}
+
+  down:
+    desc: "Tear down SkyPilot cluster"
+    cmds:
+      - sky down -y {{.CLUSTER}}
+
+  all:
+    desc: "Run up, then status"
+    deps: ["up", "status"] # Sequence: launch, then inspect  [oai_citation:10‡Taskfile](https://taskfile.dev/usage/?utm_source=chatgpt.com)

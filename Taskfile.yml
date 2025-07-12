@@ -1,7 +1,4 @@
-version: '3'
-dotenv: [".env"]
+version: "3"
 
 includes:
-  zenml: packages/orchestration/scripts/tasks/zenml/Taskfile.yml
-  ml: packages/orchestration/scripts/tasks/ml/Taskfile.yml
-
+  skypilot: scripts/tasks/Taskfile.yml

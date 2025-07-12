@@ -189,7 +189,7 @@ add-sky-gcs:
 
 # K3d
 k3d-enable-gcs-container-registry:
-	kubectl apply -f packages/orchestration/src/orchestration/scripts/access.yaml
+	kubectl apply -f ./scripts/access.yaml
 	kubectl patch serviceaccount default -n zenml \
   	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
 	kubectl patch serviceaccount zenml-service-account -n zenml \
@@ -205,7 +205,7 @@ k3d-enable-gcs-container-registry:
 
 # K8s
 k8s-enable-gcs-container-registry:
-	kubectl apply -f packages/orchestration/src/orchestration/scripts/access.yaml
+	kubectl apply -f ./scripts/access.yaml
 	kubectl patch serviceaccount default -n zenml \
   	-p '{"imagePullSecrets": [{"name": "artifact-registry-secret"}]}'
 	kubectl patch serviceaccount zenml-service-account -n zenml \
