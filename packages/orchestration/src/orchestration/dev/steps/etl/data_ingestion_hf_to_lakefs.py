@@ -19,27 +19,28 @@ class Splits(BaseModel):
     splits: list[Split]
 
 
-@step
+@step(enable_cache=False)
 def etl_from_hf_to_lakefs(
     hf_dataset_name: str,
     project_name: str,
     directory: str,
     splits: Splits,
+    config: str,
 ) -> Annotated[dict, "address_dict"]:
     address_dict = {}
     for split in splits.splits:
-        address_dict[split.name] = etl_from_hf_to_lakefs_step(hf_dataset_name, project_name, directory, split)
+        address_dict[split.name] = etl_from_hf_to_lakefs_step(hf_dataset_name, project_name, directory, split, config)
     return address_dict
 
-@step
+@step(enable_cache=False)
 def etl_from_hf_to_lakefs_step(
     hf_dataset_name: str,
     project_name: str,
     directory: str,
     split: Split,
+    config: str,
 ) -> Annotated[dict, "address_dict"]:
-    logger.info(f"Ingesting dataset {hf_dataset_name} into {project_name}/{directory}")
-    logger.info(f"split: {split}")
+    logger.info(f"---- \n Ingesting dataset {hf_dataset_name} into {project_name}/{directory}, split: {split} \n ----")
     secret = Client().get_secret("lakefs_credentials")
     credentials = LakeFSCredentials(
         endpoint_url=secret.secret_values["LAKECTL_SERVER_ENDPOINT_URL"],
@@ -55,13 +56,28 @@ def etl_from_hf_to_lakefs_step(
         project_name=project_name,
     )
     
-    address_dict = stream_and_upload_from_hf_to_lakefs(
-        hf_dataset_name,
-        lakefs_dataset,
+    _ = stream_and_upload_from_hf_to_lakefs(
+        hf_dataset_name=hf_dataset_name,
+        dataset=lakefs_dataset,
+        name=config,
         chunk_size=split.chunk_size,
+        split=split.name,
         start=split.start,
         end=split.end,
     )
+
+    lakefs_info ={
+                "dataset_type": "raw",
+                "ml_dataset_type": split.name,
+                "namespace": lakefs_dataset.credentials.namespace,
+                "repo_name": lakefs_dataset.lakefs_client.repo_manager.repo_name,
+                "branch_name": lakefs_dataset.lakefs_client.branch_manager.current_branch,
+                "address": lakefs_dataset.credentials.endpoint_url
+                + "/repositories/"
+                + lakefs_dataset.lakefs_client.repo_manager.repo_name
+                + "/objects?ref=main&path="
+                + lakefs_dataset.dataset.get_path(),
+            }
     log_metadata(
         metadata={
             "dataset_info": {
@@ -73,19 +89,8 @@ def etl_from_hf_to_lakefs_step(
                 "start": split.start,
                 "end": split.end,
             },
-            "lakefs_info": {
-                "dataset_type": "raw",
-                "ml_dataset_type": split.name,
-                "namespace": lakefs_dataset.credentials.namespace,
-                "repo_name": lakefs_dataset.lakefs_client.repo_manager.repo_name,
-                "branch_name": lakefs_dataset.lakefs_client.branch_manager.current_branch,
-                "address": lakefs_dataset.credentials.endpoint_url
-                + "/repositories/"
-                + lakefs_dataset.lakefs_client.repo_manager.repo_name
-                + "/objects?ref=main&path="
-                + lakefs_dataset.dataset.get_path(),
-            },
+            "lakefs_info": lakefs_info
         }
     )
 
-    return address_dict
+    return dict(project_name=lakefs_info)

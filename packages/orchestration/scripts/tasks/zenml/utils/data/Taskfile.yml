@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  get-splits:
+    desc: "Task to get splits"
+    dir: "scripts/tasks/zenml/utils/data"
+    vars:
+      HF_DATASET_NAME: "{{.HF_DATASET_NAME}}"
+    cmds:
+      - uv run python ./get_splits.py --hf_dataset_name {{.HF_DATASET_NAME}}
+
+

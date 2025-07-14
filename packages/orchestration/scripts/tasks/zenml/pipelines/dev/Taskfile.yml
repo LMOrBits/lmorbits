@@ -1,0 +1,17 @@
+version: "3"
+
+vars:
+  STACK: '{{default "stack-local" .STACK}}'
+
+tasks:
+  debug:
+    dir: ./src/orchestration/dev/pipelines
+    cmds:
+      - echo "test is working ok"
+      - ls
+
+  etl_from_hf_to_lakefs:
+    desc: "Task to etl from hf to lakefs"
+    dir: "src/orchestration/dev/pipelines"
+    cmds:
+      - uv run ./data_etl.py 

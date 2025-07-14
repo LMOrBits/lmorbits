@@ -1,30 +1,32 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Annotated, Any, Dict, List, Optional, Tuple
 
-from data.utils.hugging_face import get_info
+from data.utils.hugging_face import get_info, get_one_sample
 from loguru import logger
 from omegaconf import OmegaConf
 from zenml import log_metadata, pipeline
+from zenml.types import HTMLString
 
 from orchestration.dev.steps.etl.data_ingestion_hf_to_lakefs import (
-    Splits,
-    etl_from_hf_to_lakefs,
+    Split,
+    etl_from_hf_to_lakefs_step,
 )
+from orchestration.utils.tables import display_dict_of_tables
 
 
-@pipeline
+@pipeline(enable_cache=False)
 def data_etl_pipeline(
     hf_dataset_name: str,
     project_name: str,
     directory: str,
-    splits: List[Dict[str, Any]],
+    splits: List[Split],
     config: Optional[str] = None,
-) -> List[str] | None:
+) -> Annotated[dict, "address_dict"]:
     logger.info(f"Ingesting dataset {hf_dataset_name} into {project_name}/{directory}")
-    splits= Splits(splits=splits)
-    
-    addresses = etl_from_hf_to_lakefs(hf_dataset_name, project_name, directory, splits)
-    return addresses
+    address_dict = {}
+    for split in splits:
+        address_dict[split.name] = etl_from_hf_to_lakefs_step(hf_dataset_name, project_name, directory, split, config)
+    return address_dict
 
 
 def main():

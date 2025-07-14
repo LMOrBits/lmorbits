@@ -9,3 +9,7 @@ tasks:
   ruff-format:
     cmds:
       - uvx ruff format
+  
+  integrations:
+    cmds:
+      - task: zenml:setup:all-integrations  

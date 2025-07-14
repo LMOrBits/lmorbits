@@ -19,11 +19,14 @@ dependencies = [
 
 
 [tool.uv.sources]
-ml = { path = "../ml", editable = true }
-pyapp = { path = "../app/pyapp", editable = true }
 data = { path = "../data", editable = true }
+ml = { path = "../ml", editable = true }
 orchestration = { path = "../orchestration", editable = true }
 serve = { path = "../serve", editable = true }
+
+[project.optional-dependencies]
+data-nlp = ["data[nlp]"]
+data-package-dev = ["data[nlp]", "ipykernel"]
 
 [dependency-groups]
 data-package = ["data[nlp]"]
@@ -31,14 +34,12 @@ data-package-dev = ["data[nlp]", "ipykernel"]
 
 ml-package = ["ml"]
 
-app-package = ["pyapp"]
 
 ml-data-package = ["ml", "data"]
 
-all-package = ["pyapp", "data", "ml"]
-all-package-sky = ["pyapp", "data", "ml", "skypilot[gcp]>=0.8.0"]
+all-package = ["data", "ml"]
+all-package-sky = ["data", "ml", "skypilot[gcp]>=0.8.0"]
 all-package-dev = [
-    "pyapp",
     "data",
     "ml[unsloth-package]",
     "datamodel-code-generator",
