@@ -162,3 +162,8 @@ and then we can run the following command to extract the data:
 ```bash
 uv run task zenml:piplines:data-etl-huggingface
 ```
+
+you can find the link to your lakefs repo now if you go to the meta data of each step (splits)
+![image of the the lakefs repo link from zenml dashboard](./data-etl-0.png)
+
+---
