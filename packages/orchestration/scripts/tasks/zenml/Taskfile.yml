@@ -4,6 +4,8 @@ includes:
   secrets: secrets/Taskfile.yml
   setup: setup/Taskfile.yml
   test: test/Taskfile.yml
+  utils: utils/Taskfile.yml
+  pipelines: pipelines/Taskfile.yml
 
 vars:
   ZENML_HOST: '{{default .ZENML_HOST "https://zenml.lmorbits.com"}}'

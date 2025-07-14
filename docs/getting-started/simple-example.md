@@ -27,6 +27,8 @@ gh repo clone LMOrBits/lmorbits
 cd lmorbits
 ```
 
+---
+
 #### 2. Set up the orchestration(zenml):
 
 ```bash
@@ -45,6 +47,8 @@ uv run task zenml:setup:all-integrations
 
 this will install the required integrations for the zenml.
 
+---
+
 #### 3. Set up the stacks that are required for the orchestration:
 
 we will setup 3 stacks for the orchestration:
@@ -55,6 +59,8 @@ uv run task zenml:setup:local-gpu-gcs
 uv run task zenml:setup:all-k8s
 ```
 
+---
+
 #### 4. now is the time to test the pipeline:
 
 ```bash
@@ -64,7 +70,11 @@ uv run task zenml:test:plot
 this will test the pipeline and plot the results. and it show you the link afterwards, if it goes well. and then you can go to the link and see the results as in the image below:
 ![image of the the zenml pipeline](./zen1.png)
 
-### now we need to create a accounts for people that would work with the orchestration or resources:
+---
+
+#### 5. creating users for the orchestration:
+
+now we need to create a accounts for people that would work with the orchestration or resources:
 
 ```bash
 uv run task zenml:setup:create-users
@@ -73,6 +83,10 @@ uv run task zenml:setup:create-users
 this will create a accounts for people that would work with the orchestration or resources.
 and then you can use the accounts to login to the zenml server and start working with the orchestration.
 and then you can use the accounts to login to the zenml server and start working with the orchestration.
+
+---
+
+#### 6. creating a service account for the orchestration:
 
 one more thing to do is to create a service account for the orchestration specially to use it via skypilot when we utilizing a gpu , you can do it manually via ui in zenmlui > setting > service accounts > create service account.
 or via the cli:
@@ -99,6 +113,52 @@ this will create a pipeline (e.i. test_sky_simple_pipeline) in which in this pip
 
 ![image of the the zenml pipeline](./zen-sky.png)
 
-#### 5. now we set up the lakefs instace:
+---
+
+#### 7. now we set up the lakefs instace and :
 
 go to your lakefs address and start it by providing your name and email and get the keys from there and fill the .env.example file into a .env file in the orchestration folder. this will allow us to handle the data piplines.
+
+---
+
+#### 8. handle the seceret keys:
+
+now after this we need to create secrets for our lakefs instace e in the zenml secrets manager.
+
+```bash
+uv run task zenml:secrets:create-data-secrets
+```
+
+you can also check that by
+
+```bash
+uv run task zenml:secrets:get-data-secrets
+```
+
+it can also be visible in the ui by going to the zenmlui > setting > secrets:
+![image of the the zenml secrets](./zen-secrets.png)
+
+---
+
+#### 9. now we can extract data from huggingface based on the config we defined in the orchestration/config/dev/data.yaml file. and move that data into our lakefs instace.
+
+so first we can check which split from what dataset we want to extract, in order to fascilitate the process we can use the following command for getting to konw what splits are available for instace for the dataset named squad_v2 in huggingface:
+
+```bash
+uv run task zenml:utils:data:get-splits HF_DATASET_NAME=squad_v2
+```
+
+the outcome would be like this:
+![image of the the splits](./splits.png)
+
+now base on this information we can extract the amount we want to our lakefs instace. by modifying the config/dev/data.yaml file.
+
+```bash
+code orchestration/config/dev/data.yaml
+```
+
+and then we can run the following command to extract the data:
+
+```bash
+uv run task zenml:piplines:data-etl-huggingface
+```

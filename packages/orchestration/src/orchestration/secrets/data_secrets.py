@@ -1,5 +1,5 @@
-from pathlib import Path
 import argparse
+from pathlib import Path
 
 from data.utils.lakefs import LakeFSCredentials
 from dotenv import load_dotenv
@@ -22,17 +22,22 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage LakeFS credentials.")
     parser.add_argument("--create", action="store_true", help="Create LakeFS credentials.")
     parser.add_argument("--delete", action="store_true", help="Delete LakeFS credentials.")
+    parser.add_argument("--get", action="store_true", help="Get LakeFS credentials.")
     args = parser.parse_args()
 
     main_dir = Path(__file__).parents[3]
-    load_dotenv(main_dir / ".env")
-    load_dotenv(main_dir / "secrets/data/secrets/.env")
+    lmorbits_dir = main_dir.parents[1]
+    load_dotenv(lmorbits_dir / ".env")
+    load_dotenv(main_dir / ".env", override=True)
     logger.info("Loading credentials from .env file from \n"
                 f"{main_dir}/.env \n"
-                f"{main_dir / 'secrets/data/secrets/.env'}")
+                f"{lmorbits_dir / '.env'}")
 
     credentials = LakeFSCredentials.from_env()
     client = Client()
+    if args.get:
+        logger.info(f"LakeFS credentials: {credentials}")
+
     if args.create:
         client.create_secret(
             name="lakefs_credentials",

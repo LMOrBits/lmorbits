@@ -191,6 +191,13 @@ tasks:
     desc: Set default stack
     cmds:
       - uv run zenml stack set default
+  
+  stack-local:
+    desc: Set local stack
+    vars:
+      STACK: '{{default "simple-local" .STACK}}'
+    cmds:
+      - uv run zenml stack set {{.STACK}}
 
   stack-k8s:
     desc: Set K8s stack

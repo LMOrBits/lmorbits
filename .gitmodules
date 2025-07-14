@@ -9,3 +9,8 @@
 	path = packages/app
 	url = https://github.com/Parsa-Mir/app
 	branch = master
+
+[submodule "packages/data"]
+	path = packages/data
+	url = https://github.com/LMOrBits/data.git
+	branch = main

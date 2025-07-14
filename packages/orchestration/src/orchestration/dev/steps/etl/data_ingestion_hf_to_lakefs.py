@@ -1,11 +1,12 @@
-from zenml.client import Client
-from pydantic import BaseModel
-from loguru import logger
-from typing_extensions import Annotated, Literal
-from zenml import get_step_context, step, log_metadata
-from data.etl.hf_to_lakefs import stream_and_upload_from_hf_to_lakefs
-from data.utils.lakefs import LakeFSCredentials, LakeFsDataset, DatasetType
 from typing import Optional
+
+from data.etl.hf_to_lakefs import stream_and_upload_from_hf_to_lakefs
+from data.utils.lakefs import DatasetType, LakeFSCredentials, LakeFsDataset
+from loguru import logger
+from pydantic import BaseModel
+from typing_extensions import Annotated, Literal
+from zenml import get_step_context, log_metadata, step
+from zenml.client import Client
 
 
 class Split(BaseModel):
@@ -14,9 +15,24 @@ class Split(BaseModel):
     start: Optional[int] = None
     end: Optional[int] = None
 
+class Splits(BaseModel):
+    splits: list[Split]
+
 
 @step
 def etl_from_hf_to_lakefs(
+    hf_dataset_name: str,
+    project_name: str,
+    directory: str,
+    splits: Splits,
+) -> Annotated[dict, "address_dict"]:
+    address_dict = {}
+    for split in splits.splits:
+        address_dict[split.name] = etl_from_hf_to_lakefs_step(hf_dataset_name, project_name, directory, split)
+    return address_dict
+
+@step
+def etl_from_hf_to_lakefs_step(
     hf_dataset_name: str,
     project_name: str,
     directory: str,
@@ -38,7 +54,7 @@ def etl_from_hf_to_lakefs(
         directory=directory,
         project_name=project_name,
     )
-
+    
     address_dict = stream_and_upload_from_hf_to_lakefs(
         hf_dataset_name,
         lakefs_dataset,

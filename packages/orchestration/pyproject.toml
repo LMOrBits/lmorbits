@@ -14,10 +14,10 @@ dependencies = [
     "zenml==0.71",
     "go-task-bin>=3.41.0",
     "skypilot[gcp]>=0.8.0",
+    "omegaconf>=2.3.0",
 ]
 
-[project.optional-dependencies]
-skypilot-gcp = ["skypilot[gcp]>=0.8.0"]
+
 [tool.uv.sources]
 ml = { path = "../ml", editable = true }
 pyapp = { path = "../app/pyapp", editable = true }
@@ -26,7 +26,8 @@ orchestration = { path = "../orchestration", editable = true }
 serve = { path = "../serve", editable = true }
 
 [dependency-groups]
-data-package = ["data"]
+data-package = ["data[nlp]"]
+data-package-dev = ["data[nlp]", "ipykernel"]
 
 ml-package = ["ml"]
 
