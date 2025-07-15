@@ -4,13 +4,12 @@ from typing import List
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+from data.utils.lakefs import LakeFsDataset
 from data.preprocess.bronze.dask_processes import (
     AddConversation,
-    DaskDataProcess,
     ExplodeProcess,
     ExtractNestedProcess,
     dd,
-    df,
 )
 from loguru import logger
 
@@ -52,12 +51,8 @@ def bronze_pipeline(df: pd.DataFrame , agregation_function) -> pd.DataFrame:
                 .map_partitions(lambda df: df[["conversation"]])
     return new_df
 
+def bronze_pipeline_execute(lakefs_dataset:LakeFsDataset,data_files,agregation_function ,split:str,
 
-
-
-
-def bronze_pipeline_execute(lakefs_dataset,data_files,agregation_function ,split:str,
-                            
                             columns:List[str]= ["question", "context", "answers"]):
     
     _directory = lakefs_dataset.dataset.get_path()

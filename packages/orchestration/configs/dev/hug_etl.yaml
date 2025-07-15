@@ -1,0 +1,14 @@
+parameters:
+  hf_dataset_name: "squad_v2"
+  directory: "rajpurkar_squad_v2"
+  project_name: "qa-manual-8"
+  config: "squad_v2"
+  splits:
+    - name: "train"
+      chunk_size: 500
+      start: 0
+      end: 500 
+    - name: "validation"
+      chunk_size: 500
+      start: 0
+      end: 500 

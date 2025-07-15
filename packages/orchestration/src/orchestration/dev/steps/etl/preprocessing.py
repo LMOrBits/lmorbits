@@ -33,8 +33,9 @@ def view_data_from_lakefs(lakefs_dataset: LakeFsDataset, tilte:str) -> Annotated
 
 @step(enable_cache=False)
 def bronze_pipeline_step(lakefsinfo: LakefsInfo , split:str) -> Annotated[LakefsInfo, "lakefs_info"]:
-  lakefs_dataset = get_lakefs_dataset(lakefsinfo.directory,lakefsinfo.project_name)
-  data_files = lakefs_dataset.load_data_files()
-  bronze_pipeline_execute(lakefs_dataset,data_files,agregation_function ,split,
+  lakefs_dataset_bronze = get_lakefs_dataset(lakefsinfo.directory,lakefsinfo.project_name,dataset_type="bronze")
+  lakefs_dataset_raw = get_lakefs_dataset(lakefsinfo.directory,lakefsinfo.project_name,dataset_type="raw")
+  data_files = lakefs_dataset_raw.load_data_files()
+  bronze_pipeline_execute(lakefs_dataset_bronze,data_files,agregation_function ,split,
                             columns=["question", "context", "answers"])
   return lakefsinfo
