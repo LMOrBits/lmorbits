@@ -1,9 +1,7 @@
 import os
-from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Annotated
 from zenml.types import HTMLString
 from orchestration.utils.plot import convert_df_to_html_string
-import pandas as pd
 import mlflow
 from datasets import load_dataset
 from loguru import logger
@@ -13,9 +11,8 @@ from ml.experiment.mlflow.llamacpp import LlamaCppModel
 
 from ml.finetuning.unsloth import get_trainer_model
 from ml.finetuning.unsloth import cd_llama_cpp
-from zenml import log_metadata, pipeline, step
+from zenml import log_metadata,step
 from zenml.integrations.mlflow.flavors.mlflow_experiment_tracker_flavor import MLFlowExperimentTrackerSettings
-import transformers
 
 from orchestration.secrets.data_secrets import get_lakefs_credentials
 
@@ -25,7 +22,7 @@ mlflow_settings = MLFlowExperimentTrackerSettings(
 )
 
 @step
-def test_fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotated[HTMLString | None, "HTML Representation of Dataset"], Annotated[Dataset | None, "Dataset"]]:
+def fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotated[HTMLString | None, "HTML Representation of Dataset"], Annotated[Dataset | None, "Dataset"]]:
     log_metadata(metadata={"dataset": dataset})
     hf_dataset = None
     lakefs_credentials = get_lakefs_credentials()
@@ -58,7 +55,8 @@ def test_fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotat
 
 @step(experiment_tracker="mlflow_tracker",
       settings={"experiment_tracker": mlflow_settings})
-def test_fineruning_with_unsloth(
+
+def fineruning_with_unsloth(
     hf_dataset: Dataset,
     from_pretrained: Dict[str, Any],
     peft_adapters: Dict[str, Any],
@@ -141,11 +139,4 @@ def test_fineruning_with_unsloth(
 
 
 
-@pipeline
-def test_fineruning_pipeline():
-    _ ,  hf_dataset = test_fineruning_dataset_ingestion()
-    test_fineruning_with_unsloth(hf_dataset=hf_dataset)
 
-
-if __name__ == "__main__":
-    test_fineruning_pipeline.with_options(config_path=f"{Path(__file__).parents[1]}/configs/ml_config.yaml")()

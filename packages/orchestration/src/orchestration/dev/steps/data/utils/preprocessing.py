@@ -41,7 +41,7 @@ def agregation_function_empty_context(df: pd.DataFrame) -> List[np.ndarray]:
     
     
 
-def bronze_pipeline(df: pd.DataFrame , agregation_function) -> pd.DataFrame:
+def silver_pipeline(df: pd.DataFrame , agregation_function) -> pd.DataFrame:
     get_text_from_answer = ExtractNestedProcess(new_expected_columns={"text": "object"}, nested_column="answers")(df)
     get_text_from_array_text = ExplodeProcess(new_expected_columns={"text": "string"})(meta=get_text_from_answer["meta"])
     get_human = AddConversation(agregation_function=agregation_function )(meta=get_text_from_array_text["meta"])
@@ -51,7 +51,7 @@ def bronze_pipeline(df: pd.DataFrame , agregation_function) -> pd.DataFrame:
                 .map_partitions(lambda df: df[["conversation"]])
     return new_df
 
-def bronze_pipeline_execute(lakefs_dataset:LakeFsDataset,data_files,agregation_function ,split:str,
+def silver_pipeline_execute(lakefs_dataset:LakeFsDataset,data_files,agregation_function ,split:str,
 
                             columns:List[str]= ["question", "context", "answers"]):
     
@@ -70,7 +70,7 @@ def bronze_pipeline_execute(lakefs_dataset:LakeFsDataset,data_files,agregation_f
                             chunksize=4000,
                             )
     with lakefs_client.fs.transaction(lakefs_client.repo_manager.repo_name, lakefs_client.branch_manager.current_branch) as tx:
-            new_df = bronze_pipeline(ddf,agregation_function)
+            new_df = silver_pipeline(ddf,agregation_function)
             schema = pa.schema([
                 (
                     "conversation",
@@ -91,5 +91,5 @@ def bronze_pipeline_execute(lakefs_dataset:LakeFsDataset,data_files,agregation_f
                 overwrite=True,
                 schema=schema
             )
-            tx.commit(f"Uploaded dataset bronze from huggingface to lakefs in {datetime.now()}")
-            logger.success(f"Uploaded dataset bronze  to lakefs") 
+            tx.commit(f"Uploaded dataset silver from huggingface to lakefs in {datetime.now()}")
+            logger.success(f"Uploaded dataset silver to lakefs") 

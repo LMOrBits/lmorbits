@@ -1,4 +1,5 @@
-from orchestration.dev.pipelines.hug_etl import hug_etl
-from orchestration.dev.pipelines.bronze_hug_etl_elt import bronze_hug_etl_elt
+from orchestration.dev.pipelines.data.hug_etl import hug_etl
+from orchestration.dev.pipelines.data.silver_hug_etl_elt import silver_hug_etl_elt
+from orchestration.dev.pipelines.ml.sky_finetune_slm import sky_finetune_slm_pipeline
 
-__all__ = ["hug_etl", "bronze_hug_etl_elt"]
+__all__ = ["hug_etl", "silver_hug_etl_elt", "sky_finetune_slm_pipeline"]

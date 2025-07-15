@@ -1,7 +1,7 @@
 parameters:
   hf_dataset_name: "squad_v2"
   directory: "rajpurkar_squad_v2"
-  project_name: "qa-manual-8"
+  project_name: "qa-manual-9"
   config: "squad_v2"
   splits:
     - name: "train"

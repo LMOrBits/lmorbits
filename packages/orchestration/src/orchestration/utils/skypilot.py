@@ -46,17 +46,17 @@ def run_skypilot_task(
     task = sky.Task.from_yaml_config(task_config)
 
     # Launch the task
-    job_id, handle = sky.launch(
-        task,
+    job_id , handle = sky.launch(
+        task=task,
         cluster_name=cluster_name,
         # idle_minutes_to_autostop=3,
         retry_until_up=True,
-        stream_logs=True,
-        # down=True
+        # stream_logs=True,
+        down=True,
         fast=True,
     )
 
-    logger.info(f"Job launched with ID: {job_id} with handle: {handle}")
+    logger.info(f"Job launched with ID: {job_id} with handle: ")
 
     try:
         while True:

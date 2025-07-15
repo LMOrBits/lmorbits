@@ -1,5 +1,5 @@
 steps:
-  test_fineruning_dataset_ingestion:
+  fineruning_dataset_ingestion:
     enable_cache: true 
     parameters:
       dataset:
@@ -15,7 +15,7 @@ steps:
         #   split: "train[:10]"
 
 
-  test_fineruning_with_unsloth:
+  fineruning_with_unsloth:
     enable_cache: false
     parameters:
       chat_template: "llama-3"

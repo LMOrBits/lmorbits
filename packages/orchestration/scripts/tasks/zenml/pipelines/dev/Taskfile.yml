@@ -15,3 +15,11 @@ tasks:
     dir: "src/orchestration/dev/pipelines"
     cmds:
       - uv run ./data_etl.py 
+  
+  unsloth_finetuning_slm_pipeline:
+    desc: "Task to finetune slm with unsloth"
+    dir: "src/orchestration/dev/pipelines/ml"
+    cmds:
+      - uv sync --group ml-package
+      - uv run task zenml:setup:all-integrations
+      - uv run ./unsloth_finetune_slm.py 

@@ -1,6 +1,6 @@
 from data.utils.lakefs import DatasetType, LakeFSCredentials, LakeFsDataset
 from zenml.client import Client
-
+from zenml import log_metadata
 
 def get_lakefs_credentials() -> LakeFSCredentials:
     secret = Client().get_secret("lakefs_credentials")
@@ -21,3 +21,18 @@ def get_lakefs_dataset( directory: str, project_name: str, dataset_type:str="raw
         project_name=project_name,
     )
     return lakefs_dataset
+
+def log_lakefs_dataset(lakefs_dataset: LakeFsDataset):
+    log_metadata(
+        metadata={
+            "lakefs_info":{
+                "namespace":lakefs_dataset.credentials.namespace,
+                "repo_name":lakefs_dataset.lakefs_client.repo_manager.repo_name,
+                "branch_name":lakefs_dataset.lakefs_client.branch_manager.current_branch,
+                "address":lakefs_dataset.credentials.endpoint_url + "/repositories/"
+                + lakefs_dataset.lakefs_client.repo_manager.repo_name
+                + "/objects?ref=main&path="
+                + lakefs_dataset.dataset.get_path()
+            }
+        }
+    )

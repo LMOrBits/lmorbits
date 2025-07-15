@@ -1,5 +1,5 @@
 from orchestration.dev.pipelines import *
-from orchestration.cli.pipe import pipe
+from orchestration.cli.pipe import pipeline
 
 def main():
-    pipe()
+    pipeline()

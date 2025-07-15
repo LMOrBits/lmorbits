@@ -3,12 +3,12 @@ from typing import Annotated, Dict, List
 from loguru import logger
 from zenml import  pipeline
 
-from orchestration.dev.steps.etl.data_ingestion_hf_to_lakefs import (
+from orchestration.dev.steps.data.etl.data_ingestion_hf_to_lakefs import (
     LakefsInfo,
     Split,
     etl_from_hf_to_lakefs_step,
 )
-from orchestration.cli.pipe import pipe,click
+from orchestration.cli.pipe import dev,click
 from orchestration.utils.config import run_or_modify_config
 
 
@@ -30,14 +30,16 @@ def hug_etl_pipeline(
 
 
 
-@pipe.command()
+@dev.command()
 @click.option("--config", is_flag=True, help="Modify the config file")
 def hug_etl(config:bool):
     """
+    ----
     Pipeline that performs ETL operations on Hugging Face datasets:
     1. Extracts data from Hugging Face
     2. Transforms and loads it to LakeFS
 
     The pipeline configuration is read from dev/data.yaml
+    ----
     """
-    run_or_modify_config("dev/hug_etl.yaml", hug_etl_pipeline, config=config)
+    run_or_modify_config("dev/data/hug_etl.yaml", hug_etl_pipeline, config=config)
