@@ -5,53 +5,34 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "go-task-bin>=3.41.0",
-  "pre-commit>=4.1.0",
-  "skypilot[gcp]>=0.8.0",
+    "go-task-bin>=3.41.0",
+    "pre-commit>=4.1.0",
+    "skypilot[gcp]>=0.8.0",
 ]
 
 [tool.uv.sources]
 ml = { path = "packages/ml" }
-pyapp = { path = "packages/app/pyapp"}
-data = { path = "packages/data"}
+pyapp = { path = "packages/app/pyapp" }
+data = { path = "packages/data" }
 orchestration = { path = "packages/orchestration" }
 serve = { path = "packages/app/serve" }
 
 [dependency-groups]
-serve-package = [
-    "serve",
-]
+default = []
 
-orchestration-package = [
-    "orchestration",
-]
+serve-package = ["serve"]
 
-data-nl-package = [
-    "data[nlp]",
-]
+orchestration-package = ["orchestration"]
 
-ml-package = [
-    "ml",
-]
+data-nl-package = ["data[nlp]"]
 
-app-package = [
-    "pyapp",
-]
+ml-package = ["ml"]
 
-all-dev = [
-    "pyapp",
-    "data",
-    "ipykernel>=6.29.5",
-    "ml",
-    "orchestration",
-]
+app-package = ["pyapp"]
 
-all-package = [
-    "pyapp",
-    "data",
-    "ml",
-    "orchestration",
-]
+all-dev = ["pyapp", "data", "ipykernel>=6.29.5", "ml", "orchestration"]
+
+all-package = ["pyapp", "data", "ml", "orchestration"]
 
 [tool.ruff]
 line-length = 88
@@ -97,10 +78,13 @@ select = [
     "YTT", # flake8-2020
     "S",   # flake8-bandit
     "DTZ", # flake8-datetimez,
-    "E4", "E7", "E9", "F"
+    "E4",
+    "E7",
+    "E9",
+    "F",
 ]
 ignore = [
-    "E501",  # line too long, handled by formatter
+    "E501", # line too long, handled by formatter
 ]
 fixable = ["ALL"]
 unfixable = []
@@ -115,5 +99,11 @@ docstring-code-line-length = "dynamic"
 
 [tool.ruff.isort]
 known-first-party = ["data", "ml", "orchestration"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
 combine-as-imports = true
