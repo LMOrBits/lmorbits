@@ -12,7 +12,7 @@ dependencies = [
     "go-task-bin>=3.41.0",
     "data",
     "loguru>=0.7.3",
-    
+    "taskpy",
 ]
 
 [project.scripts]
@@ -24,18 +24,30 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 unsloth = { git = "https://github.com/unslothai/unsloth.git" }
-data = { path = "../data" }
+data = { path = "../data", editable = true }
 mlflow-embed = { path = "./src/ml/models/embeddings/mlflow_embed" }
+taskpy = { git = "https://github.com/Parsa-Mir/taskpy.git" }
 
 [dependency-groups]
-unsloth-package  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7",]
-unsloth-package-dev  = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7", "ipykernel>=6.29.5"]
-instance-package= [ "skypilot[gcp,kubernetes]>=0.8.0"]
+unsloth-package = ["unsloth[cu121-torch211]", "llama-cpp-python>=0.3.7"]
+unsloth-package-dev = [
+    "unsloth[cu121-torch211]",
+    "llama-cpp-python>=0.3.7",
+    "ipykernel>=6.29.5",
+]
+instance-package = ["skypilot[gcp,kubernetes]>=0.8.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ml"]
 
 [project.optional-dependencies]
-unsloth-package = ["unsloth[cu121-torch240]", "llama-cpp-python>=0.3.7"]
+unsloth-package = [
+    "unsloth[cu121-torch211]",
+    "llama-cpp-python>=0.3.7",
+    "torchvision",
+    "pip",
+]
 mlflow-embed-package = ["mlflow-embed"]
-
 
 [tool.ruff]
 line-length = 88
