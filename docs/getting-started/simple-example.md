@@ -11,8 +11,8 @@ Follow these steps to get started:
 
 ## 1. Set Up the Environment
 
-* Configure your infrastructure environment following the [infrastructure guide](getting-started/infra/). We recommend using the cloud-based deployment option, since the local deployment is not fully supported yet for fine-tuning the model.
-* Ensure all prerequisites are installed and configured properly
+- Configure your infrastructure environment following the [infrastructure guide](getting-started/infra/). We recommend using the cloud-based deployment option, since the local deployment is not fully supported yet for fine-tuning the model.
+- Ensure all prerequisites are installed and configured properly
 
 ## 2. Set up the orchestration:
 
@@ -27,7 +27,7 @@ gh repo clone LMOrBits/lmorbits
 cd lmorbits
 ```
 
-***
+---
 
 #### 2. Set up the orchestration(zenml):
 
@@ -47,7 +47,7 @@ uv run task zenml:setup:all-integrations
 
 this will install the required integrations for the zenml.
 
-***
+---
 
 #### 3. Set up the stacks that are required for the orchestration:
 
@@ -59,7 +59,7 @@ uv run task zenml:setup:local-gpu-gcs
 uv run task zenml:setup:all-k8s
 ```
 
-***
+---
 
 #### 4. now is the time to test the pipeline:
 
@@ -71,7 +71,7 @@ this will test the pipeline and plot the results. and it show you the link after
 
 <div data-full-width="true"><figure><img src="zen1.png" alt=""><figcaption></figcaption></figure></div>
 
-***
+---
 
 #### 5. creating users for the orchestration:
 
@@ -83,7 +83,7 @@ uv run task zenml:setup:create-users
 
 this will create a accounts for people that would work with the orchestration or resources. and then you can use the accounts to login to the zenml server and start working with the orchestration. and then you can use the accounts to login to the zenml server and start working with the orchestration.
 
-***
+---
 
 #### 6. creating a service account for the orchestration:
 
@@ -103,17 +103,17 @@ now you can test it by :
 uv run task zenml:test:skypilot
 ```
 
-this will create a pipeline (e.i. test\_sky\_simple\_pipeline) in which in this pipline it will create a skypilot instance and then run a new pipeline in that instance (e.i. html\_plotly\_pipline same as test which was our intention to test the pipeline in the skypilot instance that we initiated with our piplines). As you can see in the image below , the html\_plotly\_pipline will be run in the skypilot instance as the author of it is the skypilot instance.
+this will create a pipeline (e.i. test_sky_simple_pipeline) in which in this pipline it will create a skypilot instance and then run a new pipeline in that instance (e.i. html_plotly_pipline same as test which was our intention to test the pipeline in the skypilot instance that we initiated with our piplines). As you can see in the image below , the html_plotly_pipline will be run in the skypilot instance as the author of it is the skypilot instance.
 
 <div data-full-width="true"><img src="zen-sky.png" alt="image of the the zenml pipeline"></div>
 
-***
+---
 
 #### 7. now we set up the lakefs instace and :
 
 go to your lakefs address and start it by providing your name and email and get the keys from there and fill the .env.example file into a .env file in the orchestration folder. this will allow us to handle the data piplines.
 
-***
+---
 
 #### 8. handle the seceret keys:
 
@@ -131,11 +131,11 @@ uv run task zenml:secrets:get-data-secrets
 
 it can also be visible in the ui by going to the zenmlui > setting > secrets: ![image of the the zenml secrets](zen-secrets.png)
 
-***
+---
 
 #### 9. now we can extract data from huggingface based on the config we defined in the orchestration/config/dev/data.yaml file. and move that data into our lakefs instace.
 
-so first we can check which split from what dataset we want to extract, in order to fascilitate the process we can use the following command for getting to konw what splits are available for instace for the dataset named squad\_v2 in huggingface:
+so first we can check which split from what dataset we want to extract, in order to fascilitate the process we can use the following command for getting to konw what splits are available for instace for the dataset named squad_v2 in huggingface:
 
 ```bash
 uv run task zenml:utils:data:get-splits HF_DATASET_NAME=squad_v2
@@ -145,22 +145,48 @@ the outcome would be like this:&#x20;
 
 <div data-full-width="true"><figure><img src="splits.png" alt=""><figcaption></figcaption></figure></div>
 
-now base on this information we can extract the amount we want to our lakefs instace. by modifying the config/dev/data.yaml file.
+in order to get to know what pipelines we have in the orchestration, you can use the following command:
 
 ```bash
-code orchestration/config/dev/data.yaml
+uv run pipe dev --help
 ```
 
-and then we can run the following command to extract the data:
+the outcome would be like this:
+
+<div data-full-width="true"><figure><img src="pipe-dev-help.png" alt=""><figcaption></figcaption></figure></div>
+
+for instance if you want to run a pipline for huggingface etl you can use the following command:
 
 ```bash
-uv run task zenml:piplines:data-etl-huggingface
+uv run pipe dev data-etl-huggingface
 ```
 
-you can find the link to your lakefs repo now if you go to the meta data of each step (splits)&#x20;
+and if you want to change the config of the pipeline you can use the following command:
 
-<div data-full-width="true"><figure><img src="data-etl-0.png" alt=""><figcaption></figcaption></figure></div>
+```bash
+uv run pipe dev data-etl-huggingface --config
+```
 
+this will open an vim editor in which you can change the config of the pipeline.
 
+for our example we will use the following command:
 
-***
+```bash
+uv run pipe dev silver-hug-etl-elt
+```
+
+in order to see what does this pipeline do you can use the following command:
+
+```bash
+uv run pipe dev silver-hug-etl-elt --help
+```
+
+the outcome would be like this:&#x20;
+
+<div data-full-width="true"><figure><img src="pipe-dev-silver.png" alt=""><figcaption></figcaption></figure></div>
+
+also you can check the zenml dashborad of cheking the outcome:
+
+<div data-full-width="true"><figure><img src="zenml-dashboard-silver.png" alt=""><figcaption></figcaption></figure></div>
+
+---
