@@ -7,7 +7,6 @@ from datasets import load_dataset
 from loguru import logger
 from ml.config import enable_multipart_upload
 from ml.data_module.lakefs import get_dataset_from_lakefs, Dataset
-from ml.experiment.mlflow.llamacpp import LlamaCppModel
 
 from ml.finetuning.unsloth import get_trainer_model
 from ml.finetuning.unsloth import cd_llama_cpp
@@ -21,7 +20,7 @@ mlflow_settings = MLFlowExperimentTrackerSettings(
     experiment_name="qa_model_training_zenml",
 )
 
-@step
+@step(enable_cache=False)
 def fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotated[HTMLString | None, "HTML Representation of Dataset"], Annotated[Dataset | None, "Dataset"]]:
     log_metadata(metadata={"dataset": dataset})
     hf_dataset = None
@@ -43,6 +42,8 @@ def fineruning_dataset_ingestion( dataset: Dict[str, Any]) -> Tuple[Annotated[HT
             dataset["hf"]["name"],
             split=dataset["hf"]["split"],
             num_proc=dataset["num_proc"],
+            download_mode="force_redownload",
+            
         )
 
     if isinstance(hf_dataset, Dataset):
@@ -87,8 +88,6 @@ def fineruning_with_unsloth(
     logger.warning(f"chat_template: {chat_template=}")
     logger.warning(f"metadata: {metadata=}")
 
-
-
     trainer_model, tokenizer = get_trainer_model(
         chat_template=chat_template,
         dataset=hf_dataset,
@@ -98,20 +97,23 @@ def fineruning_with_unsloth(
         peft_adapters=peft_adapters,
         mapping=chat_mapping,
         column_to_be_used=column_to_be_used,
-        
     )
     trainer_model.train()
+    logger.info(f"---- training completed ----")
     model = trainer_model.model
+    logger.info(f"---- model loaded ----")
 
     if trainer_model.state.log_history and "loss" in trainer_model.state.log_history[-1]:
         final_loss = trainer_model.state.log_history[-1]["loss"]
         mlflow.log_metric("final_train_loss", final_loss)
+    logger.info(f"---- model logged ----")
     # Define the signature
     components = {"model": model, "tokenizer": tokenizer}
-    # mlflow.transformers.log_model(
-    #     transformers_model=components,
-    #     artifact_path="model"
-    # )
+    mlflow.transformers.log_model(
+        transformers_model=components,
+        artifact_path="model"
+    )
+    logger.info(f"---- components logged ----")
     cd_llama_cpp()
     logger.info(f"starting to save model at {model_save_path}")
     model.save_pretrained_gguf(
@@ -119,23 +121,26 @@ def fineruning_with_unsloth(
         tokenizer,
         quantization_method=quantization_method,
     )
+    logger.info(f"---- model llama cpp saved ----")
     logger.info(f"Model saved at {model_save_path}")
     old_model_path = os.path.join(model_save_path, f"unsloth.{quantization_method.upper()}.gguf")
     new_model_path = os.path.join(model_save_path, "model.gguf")  # New name
     os.rename(old_model_path, new_model_path)
 
-    mlflow.pyfunc.log_model(
-        artifact_path="model_path",
-        python_model=LlamaCppModel(),
-        artifacts={"model_path": f"{model_save_path}/model.gguf"},
-        pip_requirements=["mlflow==2.4.0", "llama-cpp-python", "pandas"],
-    )
+    mlflow.log_artifact(f"{model_save_path}/model.gguf", artifact_path="model_path/artifacts")
+    logger.info(f"---- model logged as artifact fallback ----")
+
     run_id = mlflow.active_run().info.run_id
-    model_uri = f"runs:/{run_id}/model"
+    model_uri = f"runs:/{run_id}/model_path"
     logger.info(f"Model logged at URI: {model_uri}")
-    registered_model_name = "qa_model"
-    model_details = mlflow.register_model(model_uri=model_uri, name=registered_model_name)
-    logger.info(f"Registered model '{model_details.name}' with version {model_details.version}")
+    
+    try:
+        registered_model_name = "qa_model"
+        model_details = mlflow.register_model(model_uri=model_uri, name=registered_model_name)
+        logger.info(f"Registered model '{model_details.name}' with version {model_details.version}")
+    except Exception as e:
+        logger.error(f"Failed to register model: {e}")
+        logger.info("Model saved but not registered - you can register it manually later")
 
 
 

@@ -19,12 +19,14 @@ steps:
           conda deactivate
           sudo apt update && apt install -y g++ make build-essential 
           cd /lmorbits/packages/orchestration
-          uv sync 
-          uv run task zenml:setup:all-integrations
+
         
         run: |
           echo "Executing main task..."
           conda deactivate
+          cd /lmorbits
+          uv sync --group default
+          uv run task ml:llama-cpp:llama-cpp-build
           cd /lmorbits/packages/orchestration
           uv run task zenml:pipelines:dev:unsloth_finetuning_slm_pipeline
           
