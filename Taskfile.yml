@@ -1,4 +1,5 @@
 version: "3"
 
 includes:
+  ml: packages/ml/Taskfile.yml
   skypilot: scripts/tasks/Taskfile.yml
