@@ -1,0 +1,11 @@
+llama.cpp/
+saved_model/
+.ruff_cache/
+.venv/
+.vscode/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+_unsloth_sentencepiece_temp/
