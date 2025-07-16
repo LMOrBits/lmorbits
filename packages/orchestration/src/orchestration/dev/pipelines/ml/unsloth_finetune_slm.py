@@ -11,5 +11,5 @@ def unsloth_finetune_slm_pipeline():
 
 
 if __name__ == "__main__":
-    run_or_modify_config("dev/ml/.yaml", unsloth_finetune_slm_pipeline, config=False)
+    run_or_modify_config("dev/ml/unsloth_finetune_slm.yaml", unsloth_finetune_slm_pipeline, config=False)
     

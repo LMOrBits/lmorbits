@@ -108,10 +108,10 @@ def fineruning_with_unsloth(
         mlflow.log_metric("final_train_loss", final_loss)
     # Define the signature
     components = {"model": model, "tokenizer": tokenizer}
-    mlflow.transformers.log_model(
-        transformers_model=components,
-        artifact_path="model"
-    )
+    # mlflow.transformers.log_model(
+    #     transformers_model=components,
+    #     artifact_path="model"
+    # )
     cd_llama_cpp()
     logger.info(f"starting to save model at {model_save_path}")
     model.save_pretrained_gguf(

@@ -4,10 +4,13 @@ tasks:
   llama-cpp-build:
     dir: ./
     cmds:
-      - git clone https://github.com/ggerganov/llama.cpp.git --recurse-submodules || (cd llama.cpp && git pull)
-      - apt install cmake -y
+      - sudo apt update
+      - sudo apt install cmake g++ build-essential libcurl4-openssl-dev -y
+      - git clone https://github.com/ggerganov/llama.cpp.git --recurse-submodules  || true
+      - ls -la
       - |
         cd llama.cpp && \
+        pwd && \
         cmake -B build && \
         cmake --build build --config Release
       - cp llama.cpp/build/bin/* llama.cpp/

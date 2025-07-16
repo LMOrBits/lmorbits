@@ -1,8 +1,8 @@
 version: "3"
 
-dotenv: [".env"]
 
 includes:
+  llama-cpp: scripts/tasks/Taskfile.yml
   ml:
     taskfile: scripts/tasks/Taskfile.yml
   mlflow-embed:
@@ -13,6 +13,10 @@ includes:
     taskfile: src/ml/experiment/hugging_face/Taskfile.yml
 
 tasks:
+  debug:
+    desc: "Debug the taskfile"
+    cmds:
+      - pwd 
   gpu-instance-up:
     desc: "Launch the GPU instance "
     cmds:

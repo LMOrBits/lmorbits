@@ -22,4 +22,5 @@ tasks:
     cmds:
       - uv sync --group ml-package
       - uv run task zenml:setup:all-integrations
+      - uv run task zenml:setup:stack-local STACK=stack-local-gpu
       - uv run ./unsloth_finetune_slm.py 
