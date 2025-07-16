@@ -5,7 +5,7 @@ steps:
       sky_config:
         resources:
           cloud: gcp 
-          image_id: docker:nvcr.io/nvidia/cuda:12.1.1-cudnn8-devel-ubuntu20.04
+          image_id: docker:nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
           accelerators: L4:1
 
         workdir: .
@@ -22,17 +22,16 @@ steps:
 
         
         run: |
-          echo "Executing main task..."
+          echo "--- Executing main task..."
           conda deactivate
           cd /lmorbits
           uv sync --group default
           uv run task ml:llama-cpp:llama-cpp-build
           cd /lmorbits/packages/orchestration
+          uv run zenml init
+          uv run task zenml:setup:stack-local STACK=stack-local-gpu
+          uv run zenml stack list
           uv run task zenml:pipelines:dev:unsloth_finetuning_slm_pipeline
+              
           
 
-        # run: |
-        #   echo "Executing main task..."
-        #   conda deactivate
-        #   cd /lmorbits/packages/orchestration
-        #   uv run task zenml:test:plot STACK=stack-local-gpu
