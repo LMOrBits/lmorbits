@@ -52,7 +52,7 @@ def run_skypilot_task(
         # idle_minutes_to_autostop=3,
         retry_until_up=True,
         # stream_logs=True,
-        down=True,
+        down=False,
         fast=True,
     )
 

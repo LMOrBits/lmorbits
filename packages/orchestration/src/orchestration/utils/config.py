@@ -12,6 +12,11 @@ def run_pipeline(config_path: str, pipeline_function: Callable):
     pipeline_function = pipeline_function.with_options(**OmegaConf.to_container(cfg))
     pipeline_function()
 
+def modify_config_relative_path(config_relative_path: str):
+    orchestration_dir = Path(__file__).parents[3]
+    config_path = orchestration_dir / "configs" / config_relative_path
+    modify_config(config_path)
+
 def run_or_modify_config(config_relative_path: str, pipeline_function: Callable , config:bool=False):
     orchestration_dir = Path(__file__).parents[3]
     config_path = orchestration_dir / "configs" / config_relative_path

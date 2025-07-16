@@ -1,12 +1,10 @@
 from typing import Optional
 
 from data.etl.hf_to_lakefs import stream_and_upload_from_hf_to_lakefs
-from data.utils.lakefs import DatasetType, LakeFSCredentials, LakeFsDataset
 from loguru import logger
 from pydantic import BaseModel
-from typing_extensions import Annotated, Literal
-from zenml import get_step_context, log_metadata, step
-from zenml.client import Client
+from typing_extensions import Annotated
+from zenml import log_metadata, step
 
 from orchestration.utils.lakefs import get_lakefs_dataset
 
