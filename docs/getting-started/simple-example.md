@@ -129,7 +129,7 @@ you can also check that by
 uv run task zenml:secrets:get-data-secrets
 ```
 
-it can also be visible in the ui by going to the zenmlui > setting > secrets: ![image of the the zenml secrets](zen-secrets.png)
+it can also be visible in the ui by going to the zenmlui > setting > secrets: ![image of the the zenml secrets](./zenml-secret.png)
 
 ---
 
@@ -190,3 +190,26 @@ also you can check the zenml dashborad of cheking the outcome:
 <div data-full-width="true"><figure><img src="zenml-dashboard-silver.png" alt=""><figcaption></figcaption></figure></div>
 
 ---
+
+#### 10. now we can start to fine tune the model:
+
+as we mentioned before we will use the skypilot instance to fine tune the model. therefor we have 2 configs for the fine tuning process. one is for the skypilot instance and the other is for the model.
+the below command will give you access to change the config of the skypilot instance.
+
+```bash
+uv run pipe dev sky-finetune-slm --config
+```
+
+<div data-full-width="true"><figure><img src="sky-config.png" alt=""><figcaption></figcaption></figure></div>
+
+which under the sky_config you can change the resources of the skypilot instance. and below is the config for the finetune process. which we will use unsloth to fine tune the model. and below you can see the hyperparameters for the finetune process. and also the dataset that will be used for the finetune process. which here we used a dataset directly from huggingface. but you can comment those and uncomment the other one to use the lakefs data if you used the pipline for etl and elt.
+
+<div data-full-width="true"><figure><img src="fine-tune-config.png" alt=""><figcaption></figcaption></figure></div>
+
+this will start to train the model.
+
+you can follow up the process in the zenml dashboard that we created a pipeline that boots up a skypilot instance and then fine tunes the model in that instance.
+
+<div data-full-width="true"><figure><img src="sky-instance-meta.png" alt=""><figcaption></figcaption></figure></div>
+
+which undernearh of this pipeline the unsloth_finetune_slm_pipeline would be running. you can also see that in your runs that this pipeline is being triggered by skypilot and is runnign in the skypilot instance. if you click on the stack of it.
