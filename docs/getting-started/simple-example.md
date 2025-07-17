@@ -213,3 +213,26 @@ you can follow up the process in the zenml dashboard that we created a pipeline 
 <div data-full-width="true"><figure><img src="sky-instance-meta.png" alt=""><figcaption></figcaption></figure></div>
 
 which undernearh of this pipeline the unsloth_finetune_slm_pipeline would be running. you can also see that in your runs that this pipeline is being triggered by skypilot and is runnign in the skypilot instance. if you click on the stack of it.
+
+<div data-full-width="true"><figure><img src="fine-tune-pipeline.png" alt=""><figcaption></figcaption></figure></div>
+
+here is the pipeline of the unsloth finetune process:
+
+<div data-full-width="true"><figure><img src="unsloth-pipe.png" alt=""><figcaption></figcaption></figure></div>
+
+we do also suppuort the pusing the model to the model registry via the ml package. you can furthure check that in the ml package. under the experiment folder.
+
+### 11. we can also push the embedding model to the model registry via the ml package. or via the zenml pipeline. since we are not yet finetuning the embedding models we can do it easily via a task.
+
+```bash
+cd packages/orchestration
+uv sync --group ml-embedding-package
+uv run task zenml:setup:all-integrations
+uv run pipe dev push-model-embedding
+```
+
+this will push the embedding model to the model registry. this section is not ideal yet but does the job for now. in the ideal scenario we should be able to push the model via the zenml only.
+
+<div data-full-width="true"><figure><img src="embed.png" alt=""><figcaption></figcaption></figure></div>
+
+as you can see we pushed the model to the mlflow.lmorbits.com with and registerd it with the name of ` airplane_simple_retriever_embeddings`
