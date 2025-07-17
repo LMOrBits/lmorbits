@@ -1,13 +1,13 @@
 version: "3"
-vars:
-  model_name: rag_embeddings
 
 tasks:
   push:
+    vars:
+      MODEL_NAME: '{{ default "rag_embeddings" .MODEL_NAME }}'
     cmds:
       - echo $MLFLOW_TRACKING_URI
       - rm -rf serve/.venv
-      - uv run mlflow_run.py
+      - uv run mlflow_run.py --model_name {{.MODEL_NAME}}
 
   download:
     dir: tests
