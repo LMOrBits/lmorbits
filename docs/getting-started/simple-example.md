@@ -236,3 +236,19 @@ this will push the embedding model to the model registry. this section is not id
 <div data-full-width="true"><figure><img src="embed.png" alt=""><figcaption></figcaption></figure></div>
 
 as you can see we pushed the model to the mlflow.lmorbits.com with and registerd it with the name of ` airplane_simple_retriever_embeddings`
+
+> now that we have our both models we can jump on the app stack and application
+
+### Set up the app stack and application:
+
+setting the app stack and starting from templates is yet another story that we will cover in the proper section when we covered the maturiry levels in detail. but here we want to show how we can have them all as an simple example for the airplane app.
+
+in order to do this lets clone the application repo in any directory you want.
+
+```bash
+cd <your_directory>
+gh repo clone LMOrbits/lmorbits-app
+cd lmorbits-app
+```
+
+now we can start to set up the app stack and application.
