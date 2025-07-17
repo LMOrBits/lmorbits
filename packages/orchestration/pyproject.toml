@@ -35,6 +35,7 @@ data-package-dev = ["data[nlp]", "ipykernel"]
 
 ml-package = ["ml[unsloth-package]", "data[simple]"]
 
+ml-embedding-package = ["ml[mlflow-embed-package]", "data[nlp]"]
 
 ml-data-package = ["ml", "data"]
 

@@ -1,0 +1,6 @@
+parameters:
+  model_name: "airplane_simple_retriever_embeddings"
+
+steps:
+  push_model:
+    enable_cache: false
