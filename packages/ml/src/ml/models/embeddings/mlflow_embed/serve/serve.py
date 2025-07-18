@@ -26,8 +26,8 @@ class EmbeddingAPI(ls.LitAPI):
         return self.model.embed(query)
 
     def encode_response(self, output):
-        embeddings = list(output)  # Convert generator to list
-        return JSONResponse({"result": embeddings[0].tolist()})  # Convert first ndarray to list
+        list_of_numpy = list(output)
+        return JSONResponse({"result": [d.tolist() for d in list_of_numpy]})  # Convert first ndarray to list
 
 
 

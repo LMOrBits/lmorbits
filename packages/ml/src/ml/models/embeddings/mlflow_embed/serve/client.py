@@ -23,3 +23,5 @@ documents: list[str] = [
 response = requests.post("http://localhost:1111/predict", 
                          json={"input": documents})
 print(f"Status: {response.status_code}\nResponse:\n {response.text}")
+answer = response.json()["result"]
+print(len(answer))
