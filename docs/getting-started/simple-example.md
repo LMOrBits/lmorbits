@@ -246,9 +246,98 @@ setting the app stack and starting from templates is yet another story that we w
 in order to do this lets clone the application repo in any directory you want.
 
 ```bash
-cd <your_directory>
-gh repo clone LMOrbits/lmorbits-app
-cd lmorbits-app
+cd <application_directory>
+gh repo clone LMOrbits/slmops-application-qa
+cd slmops-application-qa/backend
+uv run task pyapp-deps-init
+```
+
+after this these below directories will be created:
+
+```bash
+slmops-application-qa/backend/integrations/airplane_simple_chatbot
+slmops-application-qa/backend/integrations/airplane_simple_chatbot/.appdeps/airplane_simple_retriever
+```
+
+make sure that you provide a proper appdeps.env based on the appdeps.example.env file.
+
+```bash
+cd <application_directory>
+cp appdeps.example.env appdeps.env
+vi appdeps.env
 ```
 
 now we can start to set up the app stack and application.
+
+> it is worth mentioning that the development of each app stack is something that should be done seperately in their own repos and managed via app_project, but here we will use the sample app to show how we can have them all as an simple example for the airplane app. and since we are not developing stuff there and bypassing some step there are things needs to be done to make it work.
+
+#### 1. set up the data for rag system which is the raw data for the airplane app.
+
+```bash
+uv run task get-data-from-gist
+```
+
+this will download the data from the gist and put it in the `airplane_simple_retriever/data/raw` directory.
+now we can push this data to the lakefs instace and this will reside there ( in normal scenario we would have done this while developing the app stack (e.i. airplane_simple_retriever) and it would be automatically be handeled via the appdeps.toml file)
+
+now we can push the data to the lakefs instace.
+
+```bash
+cd <application_directory>/slmops-application-qa/backend/integrations/airplane_simple_chatbot/.appdeps/airplane_simple_retriever
+uv run pyapp-cli --help
+```
+
+now you can see that the pyapp-cli has a lot of commands to help you with the appstack development.
+
+<div data-full-width="true"><figure><img src="pyapp-cli.png" alt=""><figcaption></figcaption></figure></div>
+
+since we want to push the data to the lakefs instace we can use the following command:
+
+```bash
+uv run pyapp-cli push-data
+```
+
+this will ask you some questions and then push the data to the lakefs instace.
+
+as you can see from the image below we pushed the data to the lakefs instace.
+
+<div data-full-width="true"><figure><img src="ingest-data.png" alt=""><figcaption></figcaption></figure></div>
+
+but this was only the raw data. now we can generate a vectordb as well and push that to the lakefs instace.
+in order to do this we can use the following command:
+
+```bash
+uv run pyapp-cli generate-vectordb
+```
+
+this will ask you some questions and then generate a vectordb and push that to the lakefs instace.
+
+```bash
+uv run generate
+```
+
+<div data-full-width="true"><figure><img src="generate-db.png" alt=""><figcaption></figcaption></figure></div>
+
+now we can also push the vectordb to the lakefs instace.
+
+```bash
+uv run pyapp-cli push-vectordb
+```
+
+this will ask you some questions and then push the vectordb to the lakefs instace.
+
+<div data-full-width="true"><figure><img src="push-db.png" alt=""><figcaption></figcaption></figure></div>
+
+the resoan is that if now you want to replicate the whole thing it will be a lot easier to do it. and also you can use the same data when cloneing the appstack and it will be automatically there by doing the uv run pyapp-cli run. you can also test this by deleting your raw data and the vectordb data and do the `uv run pyapp-cli run` or `uv run pyapp-cli pull-data` to get the data back.
+
+in order to check that this appstack (airplane_simple_retriever) is working we can use the following command:
+
+```bash
+uv run inference
+```
+
+this will ask you some questions and then run the inference.
+
+<div data-full-width="true"><figure><img src="run-retriever.png" alt=""><figcaption></figcaption></figure></div>
+
+#### 2. set up the app stack and application.
