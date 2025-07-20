@@ -241,6 +241,10 @@ as you can see we pushed the model to the mlflow.lmorbits.com with and registerd
 
 ### Set up the app stack and application:
 
+> make sure that you have added champion as an alias for your ml models in model registry. or if you selected any other name you need to change the name of the model name in the appdeps.toml of each appstack that we will be shortly going to explain them below.
+
+<div data-full-width="true"><figure><img src="champion.png" alt=""><figcaption></figcaption></figure></div>
+
 setting the app stack and starting from templates is yet another story that we will cover in the proper section when we covered the maturiry levels in detail. but here we want to show how we can have them all as an simple example for the airplane app.
 
 in order to do this lets clone the application repo in any directory you want.
@@ -267,7 +271,7 @@ cp appdeps.example.env appdeps.env
 vi appdeps.env
 ```
 
-now we can start to set up the app stack and application.
+make sure your private keys in the `infra/provision/cloud/terraform/environments/dev/keys/storage-admin-key.json` does not have `\n` in the keys.
 
 > it is worth mentioning that the development of each app stack is something that should be done seperately in their own repos and managed via app_project, but here we will use the sample app to show how we can have them all as an simple example for the airplane app. and since we are not developing stuff there and bypassing some step there are things needs to be done to make it work.
 
@@ -341,3 +345,55 @@ this will ask you some questions and then run the inference.
 <div data-full-width="true"><figure><img src="run-retriever.png" alt=""><figcaption></figcaption></figure></div>
 
 #### 2. set up the app stack and application.
+
+you can go back to the application dir and then run below command.
+some of the step might take some time be patient.
+
+```bash
+cd backend
+uv run task run
+```
+
+<div data-full-width="true"><figure><img src="1.png" alt=""><figcaption></figcaption></figure></div>
+
+<div data-full-width="true"><figure><img src="2.png" alt=""><figcaption></figcaption></figure></div>
+
+<div data-full-width="true"><figure><img src="3.png" alt=""><figcaption></figcaption></figure></div>
+
+<div data-full-width="true"><figure><img src="4.png" alt=""><figcaption></figcaption></figure></div>
+
+<div data-full-width="true"><figure><img src="5.png" alt=""><figcaption></figcaption></figure></div>
+
+as you can see now we have 3 docker containers running. one for observability, one for the embeeding model (e.i. the embedding model for the airplane_simple_retriever) and one for the llm model (e.i. the llm model for the airplane_simple_chatbot).
+
+<div data-full-width="true"><figure><img src="8.png" alt=""><figcaption></figcaption></figure></div>
+
+now go to "http://localhost:8000" and you should see the application running.
+you will see the following page:
+
+<div data-full-width="true"><figure><img src="6.png" alt=""><figcaption></figcaption></figure></div>
+
+after clicking the start it might require you to login. and the login code is any number for now.
+
+<div data-full-width="true"><figure><img src="7.png" alt=""><figcaption></figcaption></figure></div>
+
+now you can ask questions to the chatbot.
+
+<div data-full-width="true"><figure><img src="9.png" alt=""><figcaption></figcaption></figure></div>
+
+also on the left you can have the history and by clicking on the green button you can get the link that the answer have used to answer the question.
+
+<div data-full-width="true"><figure><img src="10.png" alt=""><figcaption></figcaption></figure></div>
+By clicking on the blue button, you can view the processing steps that occurred to generate the answer. This shows how the appstack components (airplane_simple_retriever and airplane_simple_chatbot) worked together to process your question and provide a response.
+
+<div data-full-width="true"><figure><img src="11.png" alt=""><figcaption></figcaption></figure></div>
+
+now if you want to stop all the dockers (observability, embedding model, llm model) you can use the following command:
+
+```bash
+uv run task stop
+```
+
+this will stop all the dockers(observability, embedding model, llm model).
+
+<div data-full-width="true"><figure><img src="12.png" alt=""><figcaption></figcaption></figure></div>
