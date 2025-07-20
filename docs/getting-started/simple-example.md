@@ -16,11 +16,9 @@ Follow these steps to get started:
 
 ## 2. Set up the orchestration:
 
-### Set up the orchestration:
-
 the documention for the orchestration is in the [orchestration](../how-to/development/lmorbits/ORCHESTRATION/) folder. but here is a quick start guide for it to start with or simple example:
 
-#### 1. Make sure you cloned the lmorbits reposirtory:
+### 1. Make sure you cloned the lmorbits reposirtory:
 
 ```bash
 gh repo clone LMOrBits/lmorbits
@@ -29,7 +27,7 @@ cd lmorbits
 
 ---
 
-#### 2. Set up the orchestration(zenml):
+### 2. Set up the orchestration(zenml):
 
 ```bash
 cd packages/orchestration
@@ -49,7 +47,7 @@ this will install the required integrations for the zenml.
 
 ---
 
-#### 3. Set up the stacks that are required for the orchestration:
+### 3. Set up the stacks that are required for the orchestration:
 
 we will setup 3 stacks for the orchestration:
 
@@ -61,7 +59,7 @@ uv run task zenml:setup:all-k8s
 
 ---
 
-#### 4. now is the time to test the pipeline:
+### 4. now is the time to test the pipeline:
 
 ```bash
 uv run task zenml:test:plot
@@ -73,7 +71,7 @@ this will test the pipeline and plot the results. and it show you the link after
 
 ---
 
-#### 5. creating users for the orchestration:
+### 5. creating users for the orchestration:
 
 now we need to create a accounts for people that would work with the orchestration or resources:
 
@@ -85,7 +83,7 @@ this will create a accounts for people that would work with the orchestration or
 
 ---
 
-#### 6. creating a service account for the orchestration:
+### 6. creating a service account for the orchestration:
 
 one more thing to do is to create a service account for the orchestration specially to use it via skypilot when we utilizing a gpu , you can do it manually via ui in zenmlui > setting > service accounts > create service account. or via the cli:
 
@@ -109,13 +107,13 @@ this will create a pipeline (e.i. test_sky_simple_pipeline) in which in this pip
 
 ---
 
-#### 7. now we set up the lakefs instace and :
+### 7. now we set up the lakefs instace and :
 
 go to your lakefs address and start it by providing your name and email and get the keys from there and fill the .env.example file into a .env file in the orchestration folder. this will allow us to handle the data piplines.
 
 ---
 
-#### 8. handle the seceret keys:
+### 8. handle the seceret keys:
 
 now after this we need to create secrets for our lakefs instace e in the zenml secrets manager.
 
@@ -133,7 +131,7 @@ it can also be visible in the ui by going to the zenmlui > setting > secrets: ![
 
 ---
 
-#### 9. now we can extract data from huggingface based on the config we defined in the orchestration/config/dev/data.yaml file. and move that data into our lakefs instace.
+### 9. now we can extract data from huggingface based on the config we defined in the orchestration/config/dev/data.yaml file. and move that data into our lakefs instace.
 
 so first we can check which split from what dataset we want to extract, in order to fascilitate the process we can use the following command for getting to konw what splits are available for instace for the dataset named squad_v2 in huggingface:
 
@@ -191,7 +189,7 @@ also you can check the zenml dashborad of cheking the outcome:
 
 ---
 
-#### 10. now we can start to fine tune the model:
+### 10. now we can start to fine tune the model:
 
 as we mentioned before we will use the skypilot instance to fine tune the model. therefor we have 2 configs for the fine tuning process. one is for the skypilot instance and the other is for the model.
 the below command will give you access to change the config of the skypilot instance.
@@ -275,7 +273,7 @@ make sure your private keys in the `infra/provision/cloud/terraform/environments
 
 > it is worth mentioning that the development of each app stack is something that should be done seperately in their own repos and managed via app_project, but here we will use the sample app to show how we can have them all as an simple example for the airplane app. and since we are not developing stuff there and bypassing some step there are things needs to be done to make it work.
 
-#### 1. set up the data for rag system which is the raw data for the airplane app.
+### 1. set up the data for rag system which is the raw data for the airplane app.
 
 ```bash
 uv run task get-data-from-gist
@@ -344,7 +342,7 @@ this will ask you some questions and then run the inference.
 
 <div data-full-width="true"><figure><img src="run-retriever.png" alt=""><figcaption></figcaption></figure></div>
 
-#### 2. set up the app stack and application.
+### 2. set up the app stack and application.
 
 you can go back to the application dir and then run below command.
 some of the step might take some time be patient.
